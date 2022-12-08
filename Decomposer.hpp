@@ -8,13 +8,14 @@
 #ifndef Decomposer_hpp
 #define Decomposer_hpp
 
-#include "EigenCommonHeader.h"
 #include <tuple>
 
+#include "EigenCommonHeader.h"
+
 class Decomposer {
-public:
-    std::tuple<mat, mat> lu_no_pivoting (const mat& A) const;
-    std::tuple<mat, mat, mat> lu_row_pivoting (const mat& A) const;
+   public:
+    std::tuple<mat, mat> lu_no_pivoting(const mat& A) const;
+    std::tuple<mat, mat, mat> lu_row_pivoting(const mat& A) const;
     mat cholesky(const mat& A) const;
 };
 
