@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include "Option.hpp"
-#include "FiniteDifferencePricer.hpp"
+#include "FiniteDifference.hpp"
 
 void PrintVector(const std::vector<double>& vec) {
     for (auto elem : vec) {
@@ -18,6 +18,7 @@ void PrintVector(const std::vector<double>& vec) {
 }
 
 
+
 int main(int argc, const char * argv[]) {
     
     DivsTuple divs;
@@ -25,6 +26,10 @@ int main(int argc, const char * argv[]) {
     
     Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 48., 50., .5, .25, .03, .0, divs, std::vector<double>());
     
+    
+    FiniteDifference fd;
+    fd.set_params(o, 4, 0.4);
+    fd.price_option(Scheme::eul_expl, );
     
     return 0;
 }
