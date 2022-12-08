@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9BB18B5C2941491400FEF02E /* Option.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BB18B5A2941491400FEF02E /* Option.cpp */; };
+		9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */; };
 		9BD7F0E22935423800FEC86C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0E12935423800FEC86C /* main.cpp */; };
+		9BD7F0EB293543DA00FEC86C /* FiniteDifferencePricer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */; };
+		9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */; };
+		9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F22935450400FEC86C /* Decomposer.cpp */; };
+		9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +29,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9BD7F0DE2935423800FEC86C /* MTH9815_HW12_FD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MTH9815_HW12_FD; sourceTree = BUILT_PRODUCTS_DIR; };
+		9BB18B5A2941491400FEF02E /* Option.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Option.cpp; sourceTree = "<group>"; };
+		9BB18B5B2941491400FEF02E /* Option.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Option.hpp; sourceTree = "<group>"; };
+		9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FiniteDifference.cpp; sourceTree = "<group>"; };
+		9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FiniteDifference.hpp; sourceTree = "<group>"; };
+		9BD7F0DE2935423800FEC86C /* FD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FD; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD7F0E12935423800FEC86C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		9BD7F0E82935425F00FEC86C /* EigenCommonHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EigenCommonHeader.h; sourceTree = "<group>"; };
+		9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FiniteDifferencePricer.cpp; sourceTree = "<group>"; };
+		9BD7F0EA293543DA00FEC86C /* FiniteDifferencePricer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FiniteDifferencePricer.hpp; sourceTree = "<group>"; };
+		9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LinearSolver.cpp; sourceTree = "<group>"; };
+		9BD7F0F02935449B00FEC86C /* LinearSolver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LinearSolver.hpp; sourceTree = "<group>"; };
+		9BD7F0F22935450400FEC86C /* Decomposer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Decomposer.cpp; sourceTree = "<group>"; };
+		9BD7F0F32935450400FEC86C /* Decomposer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Decomposer.hpp; sourceTree = "<group>"; };
+		9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IterativeSolver.cpp; sourceTree = "<group>"; };
+		9BD7F0F62935453D00FEC86C /* IterativeSolver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IterativeSolver.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +60,7 @@
 		9BD7F0D52935423800FEC86C = {
 			isa = PBXGroup;
 			children = (
-				9BD7F0E02935423800FEC86C /* MTH9815_HW12_FD */,
+				9BD7F0E02935423800FEC86C /* FD */,
 				9BD7F0DF2935423800FEC86C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -49,25 +68,38 @@
 		9BD7F0DF2935423800FEC86C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9BD7F0DE2935423800FEC86C /* MTH9815_HW12_FD */,
+				9BD7F0DE2935423800FEC86C /* FD */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9BD7F0E02935423800FEC86C /* MTH9815_HW12_FD */ = {
+		9BD7F0E02935423800FEC86C /* FD */ = {
 			isa = PBXGroup;
 			children = (
+				9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */,
+				9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */,
+				9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */,
+				9BD7F0F62935453D00FEC86C /* IterativeSolver.hpp */,
+				9BD7F0F02935449B00FEC86C /* LinearSolver.hpp */,
+				9BB18B5B2941491400FEF02E /* Option.hpp */,
+				9BB18B5A2941491400FEF02E /* Option.cpp */,
+				9BD7F0F32935450400FEC86C /* Decomposer.hpp */,
+				9BD7F0F22935450400FEC86C /* Decomposer.cpp */,
+				9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */,
+				9BD7F0EA293543DA00FEC86C /* FiniteDifferencePricer.hpp */,
+				9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */,
+				9BD7F0E82935425F00FEC86C /* EigenCommonHeader.h */,
 				9BD7F0E12935423800FEC86C /* main.cpp */,
 			);
-			path = MTH9815_HW12_FD;
+			path = FD;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9BD7F0DD2935423800FEC86C /* MTH9815_HW12_FD */ = {
+		9BD7F0DD2935423800FEC86C /* FD */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9BD7F0E52935423800FEC86C /* Build configuration list for PBXNativeTarget "MTH9815_HW12_FD" */;
+			buildConfigurationList = 9BD7F0E52935423800FEC86C /* Build configuration list for PBXNativeTarget "FD" */;
 			buildPhases = (
 				9BD7F0DA2935423800FEC86C /* Sources */,
 				9BD7F0DB2935423800FEC86C /* Frameworks */,
@@ -77,9 +109,9 @@
 			);
 			dependencies = (
 			);
-			name = MTH9815_HW12_FD;
+			name = FD;
 			productName = MTH9815_HW12_FD;
-			productReference = 9BD7F0DE2935423800FEC86C /* MTH9815_HW12_FD */;
+			productReference = 9BD7F0DE2935423800FEC86C /* FD */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -96,7 +128,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9BD7F0D92935423800FEC86C /* Build configuration list for PBXProject "MTH9815_HW12_FD" */;
+			buildConfigurationList = 9BD7F0D92935423800FEC86C /* Build configuration list for PBXProject "FD" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -109,7 +141,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9BD7F0DD2935423800FEC86C /* MTH9815_HW12_FD */,
+				9BD7F0DD2935423800FEC86C /* FD */,
 			);
 		};
 /* End PBXProject section */
@@ -119,7 +151,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BB18B5C2941491400FEF02E /* Option.cpp in Sources */,
+				9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */,
+				9BD7F0EB293543DA00FEC86C /* FiniteDifferencePricer.cpp in Sources */,
 				9BD7F0E22935423800FEC86C /* main.cpp in Sources */,
+				9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */,
+				9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */,
+				9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +214,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -228,6 +267,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -258,7 +298,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9BD7F0D92935423800FEC86C /* Build configuration list for PBXProject "MTH9815_HW12_FD" */ = {
+		9BD7F0D92935423800FEC86C /* Build configuration list for PBXProject "FD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9BD7F0E32935423800FEC86C /* Debug */,
@@ -267,7 +307,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9BD7F0E52935423800FEC86C /* Build configuration list for PBXNativeTarget "MTH9815_HW12_FD" */ = {
+		9BD7F0E52935423800FEC86C /* Build configuration list for PBXNativeTarget "FD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9BD7F0E62935423800FEC86C /* Debug */,
