@@ -60,22 +60,6 @@
 		9BD7F0D52935423800FEC86C = {
 			isa = PBXGroup;
 			children = (
-				9BD7F0E02935423800FEC86C /* FD */,
-				9BD7F0DF2935423800FEC86C /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		9BD7F0DF2935423800FEC86C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				9BD7F0DE2935423800FEC86C /* FD */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		9BD7F0E02935423800FEC86C /* FD */ = {
-			isa = PBXGroup;
-			children = (
 				9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */,
 				9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */,
 				9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */,
@@ -90,8 +74,16 @@
 				9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */,
 				9BD7F0E82935425F00FEC86C /* EigenCommonHeader.h */,
 				9BD7F0E12935423800FEC86C /* main.cpp */,
+				9BD7F0DF2935423800FEC86C /* Products */,
 			);
-			path = FD;
+			sourceTree = "<group>";
+		};
+		9BD7F0DF2935423800FEC86C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9BD7F0DE2935423800FEC86C /* FD */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
