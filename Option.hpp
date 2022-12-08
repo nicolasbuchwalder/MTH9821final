@@ -60,6 +60,7 @@ private:
     
     
 public:
+    Option() = default;
     
     Option(OptionExercise ex, OptionPayoff payoff, OptionType type, double S, double K, double T, double sigma, double r, double q, DivsTuple divs, std::vector<double> add_params);
     

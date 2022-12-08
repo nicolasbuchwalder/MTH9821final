@@ -28,6 +28,7 @@ class FiniteDifference {
 
 private:
     
+    Option _option;         // option
     OptionPayoff _payoff;   // payoff type
     OptionExercise _ex;     // exercise type
     OptionType _type;       // type of option
@@ -46,6 +47,7 @@ private:
     // domain coefficients
     std::vector<std::size_t> _Ms;
     std::size_t _N;
+    double _alpha_temp;
     
     double _x_l;
     double _x_r;
@@ -58,16 +60,19 @@ private:
     // heat coefficients
     double _a;
     double _b;
-    double _tau_final_;
+    double _tau_final;
     
     // list of dividends
     std::vector<double> _tau_divs;
     std::vector<double> _q_divs;
     
-    
     // meshes
     std::vector<double> _x_mesh;
     std::vector<std::vector<double>> _u_mesh;
+    
+    // terminal values
+    double _x_compute;
+    std::pair<std::size_t, std::size_t> _x_compute_idx;
     
     
     // boundary conditions
@@ -76,10 +81,12 @@ private:
     std::function<double (double, double)> _boundary_x_r;
     
     // domain builders
-    void set_domain();
-    void set_discretisation();
-    void set_boundaries();
-    void build_mesh();
+    void build_domain();
+    // sub functions
+    void set_domain();  // setting the
+    void set_discretisation();  // setting the N, alpha, dx, dtaus etc
+    void set_boundaries(); // setting the boundary functions in function of type of option
+    void build_mesh();  // constructing the mesh
     
     
     // functions to compute advance one step
@@ -89,16 +96,21 @@ private:
     void advance_cn_sor();
     
     // functions to compute the finite difference over subdomain (after each discrete divs)
-    void compute_sub_domain_expl();
-    void compute_sub_domain_impl();
-    void compute_sub_domain_cn_lu();
-    void compute_sub_domain_cn_sor();
+    void compute_sub_domain_expl(std::size_t sub, double start_tau);
+    void compute_sub_domain_impl(std::size_t sub, double start_tau);
+    void compute_sub_domain_cn_lu(std::size_t sub, double start_tau);
+    void compute_sub_domain_cn_sor(std::size_t sub, double start_tau);
     
     // functions to price with fd on all the domain
-    std::vector<double> price_expl(bool show_domain, bool include_greeks);
-    std::vector<double> price_impl(bool show_domain, bool include_greeks);
-    std::vector<double> price_cn_lu(bool show_domain, bool include_greeks);
-    std::vector<double> price_cn_sor(bool show_domain, bool include_greeks);
+    std::vector<double> price_expl(bool include_greeks);
+    std::vector<double> price_impl(bool include_greeks);
+    std::vector<double> price_cn_lu(bool include_greeks);
+    std::vector<double> price_cn_sor(bool include_greeks);
+    
+    // function to convert from heat to real world
+    double convert_to_v(double x, double tau, double u) const;
+    
+    double approximate();
     
     // computing the greeks
     std::vector<double> greeks();
@@ -109,13 +121,23 @@ public:
     FiniteDifference() = default;
     
     // set all parameters
-    void set_params(Option opt, std::size_t M_1, double alpha_1_temp);
+    void set_params(Option opt, std::size_t M_1, double alpha_temp);
     
     // price option
-    std::vector<double> price_option(const Scheme& scheme, bool show_domain, bool include_greeks);
+    std::vector<double> price_option(const Scheme& scheme, bool include_greeks);
+    
+    // show the domain parameters
+    void show_domain_params();
     
     // print the approximations
-    void show_grid();
+    void show_grid(bool convert);
+    
+    
+    // print functions
+    template < typename T >
+    void print(const std::vector<T>& vec) const;
+    template < typename T >
+    void print(const std::vector<std::vector<T>>& mat) const;
     
 
 };
