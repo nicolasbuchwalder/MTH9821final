@@ -9,22 +9,20 @@
 #include <numeric>
 #include <utility>
 
-
-class RandomNumberGenerator{
-public:
+class RandomNumberGenerator {
+   public:
     virtual double operator()() = 0;
 };
 
-class LinearCongruential: public RandomNumberGenerator {
-protected:
+class LinearCongruential : public RandomNumberGenerator {
+   protected:
     unsigned long long seed;
     unsigned long long a;
     unsigned long long c;
     unsigned long long k;
 
-public:
-    explicit LinearCongruential(unsigned long long seed_=1, unsigned long long a_=39373, long long c_=0, unsigned long k_= 2147483647):
-            seed(seed_),a(a_),c(c_),k(k_){}
+   public:
+    explicit LinearCongruential(unsigned long long seed_ = 1, unsigned long long a_ = 39373, long long c_ = 0, unsigned long k_ = 2147483647) : seed(seed_), a(a_), c(c_), k(k_) {}
 
     double operator()() override {
         seed = (a * seed + c) % k;
@@ -32,18 +30,17 @@ public:
     }
 };
 
-class InverseTransform :public RandomNumberGenerator {
-protected:
+class InverseTransform : public RandomNumberGenerator {
+   protected:
     double a0 = 2.50662823884, a1 = -18.61500062529, a2 = 41.39119773534, a3 = -25.44106049637;
     double b0 = -8.47351093090, b1 = 23.08336743743, b2 = -21.06224101826, b3 = 3.13082909833;
     double c0 = 0.3374754822726147, c1 = 0.9761690190917186, c2 = 0.1607979714918209,
-            c3 = 0.0276438810333863, c4 = 0.0038405729373609, c5 = 0.0003951896511919,
-            c6 = 0.0000321767881768, c7 = 0.0000002888167364, c8 = 0.0000003960315187;
+           c3 = 0.0276438810333863, c4 = 0.0038405729373609, c5 = 0.0003951896511919,
+           c6 = 0.0000321767881768, c7 = 0.0000002888167364, c8 = 0.0000003960315187;
     LinearCongruential uniform_distribution;
 
-public:
-
-    explicit InverseTransform(LinearCongruential U_ = LinearCongruential()) :uniform_distribution(std::move(U_)) {}
+   public:
+    explicit InverseTransform(LinearCongruential U_ = LinearCongruential()) : uniform_distribution(std::move(U_)) {}
 
     double inverse_norm(double u) const {
         double y = u - 0.5;
@@ -69,21 +66,21 @@ public:
     }
 };
 
-class AcceptanceRejection :public RandomNumberGenerator {
-protected:
-//    double c;
+class AcceptanceRejection : public RandomNumberGenerator {
+   protected:
+    //    double c;
     LinearCongruential uniform_distribution;
 
-public:
-    explicit AcceptanceRejection(LinearCongruential U_ = LinearCongruential()):uniform_distribution(std::move(U_)) {}
-//    explicit AcceptanceRejection(LinearCongruential U_ = LinearCongruential()):c(sqrt(2 *  M_E/ M_PI)), uniform_distribution(std::move(U_)) {}
+   public:
+    explicit AcceptanceRejection(LinearCongruential U_ = LinearCongruential()) : uniform_distribution(std::move(U_)) {}
+    //    explicit AcceptanceRejection(LinearCongruential U_ = LinearCongruential()):c(sqrt(2 *  M_E/ M_PI)), uniform_distribution(std::move(U_)) {}
 
-    double operator()() override{
+    double operator()() override {
         double u1 = uniform_distribution();
         double u2 = uniform_distribution();
         double u3 = uniform_distribution();
         double x = -log(u1);
-        while (u2 > exp(-0.5 * (x - 1)*(x - 1))) {
+        while (u2 > exp(-0.5 * (x - 1) * (x - 1))) {
             u1 = uniform_distribution();
             u2 = uniform_distribution();
             u3 = uniform_distribution();
@@ -95,17 +92,17 @@ public:
     }
 };
 
-class BoxMuller :public RandomNumberGenerator {
-protected:
+class BoxMuller : public RandomNumberGenerator {
+   protected:
     LinearCongruential uniform_distribution;
     bool flag;
     double prev;
 
-public:
-    explicit BoxMuller(LinearCongruential U_ = LinearCongruential()) :uniform_distribution(std::move(U_)), flag(false), prev(0.) {}
+   public:
+    explicit BoxMuller(LinearCongruential U_ = LinearCongruential()) : uniform_distribution(std::move(U_)), flag(false), prev(0.) {}
 
     double operator()() override {
-        if (flag){
+        if (flag) {
             flag = false;
             return prev;
         }
@@ -124,5 +121,4 @@ public:
     }
 };
 
-
-#endif //HW1_PRNG_HPP
+#endif  // HW1_PRNG_HPP

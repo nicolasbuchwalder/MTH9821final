@@ -31,10 +31,12 @@ void Option::update_vals(double t) {
     _r_disc = std::exp(-_r * (_T - _t));
 };
 
+// CDF of std normal
 double Option::phi(double t) const {
     return std::erfc(-t / std::sqrt(2.)) / 2.;
 };
 
+// PDF of std normal
 double Option::z(double t) const {
     return std::exp(-t * t / 2.) / std::sqrt(2. * std::numbers::pi);
 }
