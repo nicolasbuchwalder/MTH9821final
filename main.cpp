@@ -29,8 +29,8 @@ int main(int argc, const char * argv[]) {
     
     
     FiniteDifference fd;
-    fd.set_params(o, 200, 0.4);
-    auto res = fd.price_option(Scheme::eul_expl, true);
+    fd.set_params(o, 1000, 0.4);
+    auto res = fd.price_option(Scheme::cn_lu, true);
     //fd.show_domain_params();
     //fd.show_grid(false);
     fd.print(res);

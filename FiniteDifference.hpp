@@ -92,7 +92,7 @@ private:
     // functions to compute advance one step
     void advance_expl(double alpha, double tau, double xl, double xr);
     void advance_impl(double alpha, double tau, double xl, double xr, const mat& L, const mat& U);
-    void advance_cn_lu();
+    void advance_cn_lu(double alpha, double tau, double xl, double xr, const mat& L, const mat& U, const mat& b_multiplier);
     void advance_cn_sor();
     
     // functions to compute the finite difference over subdomain (after each discrete divs)
@@ -100,12 +100,6 @@ private:
     void compute_sub_domain_impl(std::size_t sub, double start_tau);
     void compute_sub_domain_cn_lu(std::size_t sub, double start_tau);
     void compute_sub_domain_cn_sor(std::size_t sub, double start_tau);
-    
-    // functions to price with fd on all the domain
-    std::vector<double> price_expl(bool include_greeks);
-    std::vector<double> price_impl(bool include_greeks);
-    std::vector<double> price_cn_lu(bool include_greeks);
-    std::vector<double> price_cn_sor(bool include_greeks);
     
     // function to convert from heat to real world
     double convert_to_v(double x, double tau, double u) const;
