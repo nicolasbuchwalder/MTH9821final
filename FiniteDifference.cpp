@@ -169,7 +169,7 @@ void FiniteDifference::advance_expl(double alpha, double tau, double xl, double 
 
 void FiniteDifference::advance_impl(double alpha, double tau, double xl, double xr, const mat& L, const mat& U){
     
-    std::vector<double> new_u_mesh(_u_mesh.back().size());
+    std::vector<double> new_u_mesh(_N + 1);
     
     vec b(_u_mesh.back().size() - 2);
     std::copy(_u_mesh.back().cbegin() + 1, _u_mesh.back().cend() - 1, b.begin());
@@ -193,6 +193,37 @@ void FiniteDifference::advance_impl(double alpha, double tau, double xl, double 
     _u_mesh.push_back(new_u_mesh);
 }
 
+void FiniteDifference::advance_cn_lu(double alpha, double tau, double xl, double xr, const mat& L, const mat& U, const mat& b_multiplier){
+    
+    std::vector<double> new_u_mesh(_N + 1);
+    
+    vec u(_N - 1);
+    std::copy(_u_mesh.back().cbegin() + 1, _u_mesh.back().cend() - 1, u.begin());
+    
+    vec b(_N - 1);
+    b = b_multiplier * u;
+    
+    // boundary conditions
+    b(0) += _boundary_x_l(xl, tau) * alpha * .5;
+    b(b.size() - 1) += _boundary_x_r(xr, tau) * alpha * .5;
+    b(0) += *(_u_mesh.back().cbegin()) * alpha * .5;
+    b(b.size() - 1) += *(_u_mesh.back().crbegin()) * alpha * .5;
+    
+    // solve linear system
+    LinearSolver substituter;
+    b = substituter.ForwardSub(L, b);
+    b = substituter.BackwardSub(U, b);
+    
+    // assign to new u_mesh
+    std::copy(b.cbegin(), b.cend(), new_u_mesh.begin() + 1);
+    
+    // Add boundary condition
+    *(new_u_mesh.begin()) = _boundary_x_l(xl, tau);
+    *(new_u_mesh.rbegin()) = _boundary_x_r(xr, tau);
+    
+    _u_mesh.push_back(new_u_mesh);
+    
+}
 
 
 
@@ -208,34 +239,67 @@ void FiniteDifference::compute_sub_domain_expl(std::size_t sub, double start_tau
     for (int i = 1; i <= _Ms[sub]; i++){
         advance_expl(_alphas[sub], start_tau + _dtaus[sub] * i, _x_l, _x_r);
     }
-    
-}
+};
 
-
-
-
-
-
-/*
- GLOBAL PRICERS
- */
-
-std::vector<double> FiniteDifference::price_expl(bool include_greeks){
-    
-    for (int sub = 0; sub <= _num_divs; sub++){
-        
-        compute_sub_domain_expl(sub, 0);
+void FiniteDifference::compute_sub_domain_impl(std::size_t sub, double start_tau){
+    // initial matrix
+    mat A(mat::Zero(_N - 1, _N - 1));
+    A(0, 0) = 1. + 2. * _alphas[sub];
+    for (std::size_t i = 1; i < _N - 1; i++) {
+        // Fill values
+        A(i - 1, i) = -_alphas[sub];
+        A(i, i - 1) = -_alphas[sub];
+        A(i, i) = 1. + 2. * _alphas[sub];
     }
     
-    std::vector<double> res;
-    res.push_back(approximate());
+    // LU decompose A
+    mat L(A.rows(), A.cols());
+    mat U(A.rows(), A.cols());
+    Decomposer decomposer;
+    std::tie(L, U) = decomposer.lu_no_pivoting(A);
     
-    return res;
-}
-
-
-
-
+    
+    for (int i = 1; i <= _Ms[sub]; i++){
+        advance_impl(_alphas[sub], start_tau + _dtaus[sub] * i, _x_l, _x_r, L, U);
+    }
+};
+    
+void FiniteDifference::compute_sub_domain_cn_lu(std::size_t sub, double start_tau){
+    mat A(mat::Zero(_N - 1, _N - 1));
+    A(0, 0) = 1. + _alphas[sub];
+    for (std::size_t i = 1; i < _N - 1; i++) {
+        // Fill values
+        A(i - 1, i) = -_alphas[sub] * .5;
+        A(i, i - 1) = -_alphas[sub] * .5;
+        A(i, i) = 1. + _alphas[sub];
+    }
+    
+    // Build matrix needed for the construction of b
+    mat b_multiplier(mat::Zero(A.rows(), A.cols()));   // Initialize with zero matrix
+    
+    b_multiplier(0, 0) = 1. - _alphas[sub];
+    for (std::size_t i = 1; i < _N - 1 ; i++) {
+        // Fill values
+        b_multiplier(i - 1, i) = _alphas[sub] * .5;
+        b_multiplier(i, i - 1) = _alphas[sub] * .5;
+        b_multiplier(i, i) = 1. - _alphas[sub];
+    }
+    
+    // LU decompose A
+    mat L(A.rows(), A.cols());
+    mat U(A.rows(), A.cols());
+    Decomposer decomposer;
+    std::tie(L, U) = decomposer.lu_no_pivoting(A);
+    
+    for (int i = 1; i <= _Ms[sub]; i++){
+        advance_cn_lu(_alphas[sub], start_tau + _dtaus[sub] * i, _x_l, _x_r, L, U, b_multiplier);
+    }
+};
+    
+void FiniteDifference::compute_sub_domain_cn_sor(std::size_t sub, double start_tau){
+    
+};
+    
 
 
 /*
@@ -308,15 +372,33 @@ std::vector<double> FiniteDifference::price_option(const Scheme& scheme, bool in
     
     build_domain();
     
-    std::vector<double> res;
+              
+    std::function<void (FiniteDifference*, std::size_t, double)> scheme_function;
     
     switch (scheme){
         case eul_expl:
-            res = price_expl(include_greeks);
+            scheme_function = &FiniteDifference::compute_sub_domain_expl;
+            break;
+        case eul_impl:
+            scheme_function = &FiniteDifference::compute_sub_domain_impl;
+            break;
+        case cn_lu:
+            scheme_function = &FiniteDifference::compute_sub_domain_cn_lu;
+            break;
+        case cn_sor:
+            scheme_function = &FiniteDifference::compute_sub_domain_cn_sor;
             break;
         default:
-            break;
+            std::cout << "scheme not recognised" << std::endl;
     };
+    
+    for (int sub = 0; sub <= _num_divs; sub++){
+        scheme_function(this, sub, 0);
+    }
+
+    std::vector<double> res;
+    res.push_back(approximate());
+    
     return res;
 };
 
@@ -360,10 +442,4 @@ void FiniteDifference::show_grid(bool convert){
     };
     
 }
-
-
-
-
-
-
 
