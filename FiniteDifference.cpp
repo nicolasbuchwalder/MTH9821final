@@ -49,7 +49,7 @@ void FiniteDifference::set_domain(){
 
 void FiniteDifference::set_discretisation(){
     
-    _x_compute = std::log(_S / _K);
+    _target_x = std::log(_S / _K);
     
     // no dividends
     if (_num_divs == 0){
@@ -58,11 +58,11 @@ void FiniteDifference::set_discretisation(){
         if (_type == OptionType::downout){
             _dtaus.push_back(_tau_final / _Ms.front());
             _dxs.push_back(std::sqrt(_dtaus.front() / _alpha_temp));
-            std::size_t N_left = std::floor((_x_compute - _x_l) / _dxs.front());
-            _x_compute_idx = std::make_pair(N_left, N_left);
-            _dxs.front() = (_x_compute - _x_l) / N_left;
+            std::size_t N_left = std::floor((_target_x - _x_l) / _dxs.front());
+            _target_idx = std::make_pair(N_left, N_left);
+            _dxs.front() = (_target_x - _x_l) / N_left;
             _alphas.push_back(_dtaus.front() / (_dxs.front() * _dxs.front()));
-            std::size_t N_right = std::ceil((_x_r - _x_compute) / _dxs.front());
+            std::size_t N_right = std::ceil((_x_r - _target_x) / _dxs.front());
             _N = N_left + N_right;
         }
         
@@ -70,11 +70,11 @@ void FiniteDifference::set_discretisation(){
         else if (_type == OptionType::upout){
             _dtaus.push_back(_tau_final / _Ms.front());
             _dxs.push_back(std::sqrt(_dtaus.front() / _alpha_temp));
-            std::size_t N_right = std::floor((_x_r - _x_compute) / _dxs.front());
-            _dxs.front() = (_x_r - _x_compute) / N_right;
+            std::size_t N_right = std::floor((_x_r - _target_x) / _dxs.front());
+            _dxs.front() = (_x_r - _target_x) / N_right;
             _alphas.push_back(_dtaus.front() / (_dxs.front() * _dxs.front()));
-            std::size_t N_left = std::ceil((_x_compute - _x_l) / _dxs.front());
-            _x_compute_idx = std::make_pair(N_left, N_left);
+            std::size_t N_left = std::ceil((_target_x - _x_l) / _dxs.front());
+            _target_idx = std::make_pair(N_left, N_left);
             _N = N_left + N_right;
             
         }
@@ -90,13 +90,13 @@ void FiniteDifference::set_discretisation(){
                 x += _dxs.front();
                 idx += 1;
             }
-            _x_compute_idx = std::make_pair(idx - 1, idx);
+            _target_idx = std::make_pair(idx - 1, idx);
             
         };
     }
     // if discrete dividends
     else {
-        double x_bar_compute = _x_compute;
+        double x_bar_compute = _target_x;
         for (auto q : _q_divs){x_bar_compute += (1 - q);};
         double dtau_1 = _tau_divs.front() / _Ms.front();
         _dtaus.push_back(dtau_1);
@@ -104,7 +104,7 @@ void FiniteDifference::set_discretisation(){
         _dxs.push_back(dx);
         double N_left = std::ceil((x_bar_compute - _x_l) / dx);
         double N_right = std::ceil((_x_r - x_bar_compute) / dx);
-        _x_compute_idx = std::make_pair(N_left, N_left);
+        _target_idx = std::make_pair(N_left, N_left);
         _N = N_left + N_right;
         
         for (int i = 0; i < _num_divs; i++){
@@ -306,15 +306,53 @@ void FiniteDifference::compute_sub_domain_cn_sor(std::size_t sub, double start_t
  SUPPORT
  */
 
-double FiniteDifference::convert_to_v(double x, double tau, double u) const{
+double FiniteDifference::u_to_v(double x, double tau, double u) const{
     return std::exp(-_a * x -_b * tau) * u;
 }
 
 double FiniteDifference::approximate(){
     // linear interpolation
-    double u_approx = ((_x_mesh[_x_compute_idx.second] - _x_compute) * _u_mesh.back()[_x_compute_idx.first] + (_x_compute - _x_mesh[_x_compute_idx.first]) * _u_mesh.back()[_x_compute_idx.second]) / _dxs.back();
-    return std::exp(-_a * _x_compute - _b * _tau_final) * u_approx;
+    double u_approx = ((_x_mesh[_target_idx.second] - _target_x) * _u_mesh.back()[_target_idx.first] + (_target_x - _x_mesh[_target_idx.first]) * _u_mesh.back()[_target_idx.second]) / _dxs.back();
+    return std::exp(-_a * _target_x - _b * _tau_final) * u_approx;
     
+}
+
+std::vector<double> FiniteDifference::greeks(){
+    auto x_to_S = [=](double x){ return _K * std::exp(x); };
+    
+    std::vector<double> greeks;
+    
+    // if target is on a point of x_mesh
+    if (_target_idx.first == _target_idx.second){
+        
+        std::size_t idx = _target_idx.first;
+        
+        double S_minus = x_to_S(idx - 1);
+        double S_0 = x_to_S(idx);
+        double S_plus = x_to_S(idx + 1);
+        
+        double V_minus = u_to_v(_x_mesh[idx - 1], _tau_final, _u_mesh.back()[idx - 1]);
+        double V_0 = u_to_v(_x_mesh[idx], _tau_final, _u_mesh.back()[idx]);
+        double V_plus = u_to_v(_x_mesh[idx + 1], _tau_final, _u_mesh.back()[idx + 1]);
+        double V_past = u_to_v(_x_mesh[idx], _tau_final - _dtaus.back(), _u_mesh.back()[idx]);
+        
+        double dt = 2. * _dtaus.back() / (_sigma * _sigma);
+        
+        double delta = (V_plus - V_minus) / (S_plus - S_minus);
+        double gamma = ((S_0 - S_minus) * V_plus  - (S_plus - S_minus) * V_0 + (S_plus - S_0) * V_minus) / ((S_0 - S_minus) * (S_plus - S_0) * (S_plus - S_minus)/2.);
+        double theta = (V_past - V_0) / dt;
+        
+        greeks.push_back(delta); greeks.push_back(gamma); greeks.push_back(theta);
+        
+    }
+    else {
+        std::size_t idx = _target_idx.first;
+        
+    }
+    
+    
+    return greeks;
+
 }
 
 
@@ -368,7 +406,7 @@ void FiniteDifference::set_params(Option opt, std::size_t M_1, double alpha_temp
     
 }
 
-std::vector<double> FiniteDifference::price_option(const Scheme& scheme, bool include_greeks){
+std::vector<double> FiniteDifference::price_option(const Scheme& scheme){
     
     build_domain();
     
@@ -398,7 +436,8 @@ std::vector<double> FiniteDifference::price_option(const Scheme& scheme, bool in
 
     std::vector<double> res;
     res.push_back(approximate());
-    
+    auto gs = greeks();
+    res.insert(res.end(), gs.begin(), gs.end());
     return res;
 };
 
@@ -414,11 +453,11 @@ void FiniteDifference::show_domain_params(){
     std::cout << "alphas: "; print(_alphas);
 };
 
-void FiniteDifference::show_grid(bool convert){
+void FiniteDifference::show_grid(bool convert_to_v){
     
     std::cout << std::endl << "grid:" << std::endl;
      
-    if (convert){
+    if (convert_to_v){
         
         double tau = 0;
         double x = _x_l;
@@ -429,7 +468,7 @@ void FiniteDifference::show_grid(bool convert){
                 
                 x = _x_l;
                 for (int k = 0; k < _N; k++){
-                    std::cout << convert_to_v(x, tau, _u_mesh[j][k]) << "\t";
+                    std::cout << u_to_v(x, tau, _u_mesh[j][k]) << "\t";
                     x += _dxs[i];
                 }
                 tau += _dtaus[i];

@@ -71,8 +71,8 @@ private:
     std::vector<std::vector<double>> _u_mesh;
     
     // terminal values
-    double _x_compute;
-    std::pair<std::size_t, std::size_t> _x_compute_idx;
+    double _target_x;
+    std::pair<std::size_t, std::size_t> _target_idx;
     
     
     // boundary conditions
@@ -102,7 +102,7 @@ private:
     void compute_sub_domain_cn_sor(std::size_t sub, double start_tau);
     
     // function to convert from heat to real world
-    double convert_to_v(double x, double tau, double u) const;
+    double u_to_v(double x, double tau, double u) const;
     
     double approximate();
     
@@ -118,13 +118,13 @@ public:
     void set_params(Option opt, std::size_t M_1, double alpha_temp);
     
     // price option
-    std::vector<double> price_option(const Scheme& scheme, bool include_greeks);
+    std::vector<double> price_option(const Scheme& scheme);
     
     // show the domain parameters
     void show_domain_params();
     
     // print the approximations
-    void show_grid(bool convert);
+    void show_grid(bool convert_to_v);
     
     
     // print functions
