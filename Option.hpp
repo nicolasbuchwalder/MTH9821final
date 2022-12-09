@@ -13,16 +13,19 @@
 #include <tuple>
 #include <vector>
 
-enum OptionExercise {
+enum OptionExercise
+{
     euro,
     amer
 };
-enum OptionPayoff {
+enum OptionPayoff
+{
     call,
     put,
     custom
 };
-enum OptionType {
+enum OptionType
+{
     vanilla,
     upin,
     downin,
@@ -33,20 +36,21 @@ enum OptionType {
 using DivsTuple = std::vector<std::tuple<bool, double, double>>;
 using ParamsTuple = std::tuple<OptionExercise, OptionPayoff, OptionType, double, double, double, double, double, double, DivsTuple, std::vector<double>>;
 
-class Option {
-   private:
+class Option
+{
+private:
     // option parameters
-    OptionPayoff _payoff;  // payoff type
-    OptionExercise _ex;    // exercise type
-    OptionType _type;      // type of option
-    double _S;             // Spot price
-    double _K;             // Strike price
-    double _T;             // Maturity
-    double _sigma;         // Volatility
-    double _r;             // Const interest rate
-    double _q;             // Compound dividend rate
+    OptionPayoff _payoff; // payoff type
+    OptionExercise _ex;   // exercise type
+    OptionType _type;     // type of option
+    double _S;            // Spot price
+    double _K;            // Strike price
+    double _T;            // Maturity
+    double _sigma;        // Volatility
+    double _r;            // Const interest rate
+    double _q;            // Compound dividend rate
 
-    DivsTuple _divs;  // dividend
+    DivsTuple _divs; // dividend
     std::vector<double> _add_params;
 
     double _t;
@@ -66,16 +70,14 @@ class Option {
     double phi(double t) const;
 
     void update_vals(double t);
-    
-    
-    
+
 public:
     Option() = default;
-    
+
     Option(OptionExercise ex, OptionPayoff payoff, OptionType type, double S, double K, double T, double sigma, double r, double q, DivsTuple divs, std::vector<double> add_params);
 
     ParamsTuple get_params() const;
 
-    std::vector<double> price_european(bool includeGreeks) const;
+    std::vector<double> price_european(bool includeGreeks = false) const;
 };
 #endif /* Option_hpp */

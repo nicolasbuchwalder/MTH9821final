@@ -18,7 +18,8 @@
 #include "Option.hpp"
 #include "RandomNumberGenerator.hpp"
 
-enum Scheme {
+enum Scheme
+{
     standardMC,
     hestonMC
 };
@@ -32,23 +33,25 @@ enum RandomGeneratorMethod {
 }
 */
 
-class MonteCarlo {
-   private:
-    OptionPayoff _payoff;  // payoff type
-    OptionExercise _ex;    // exercise type
-    OptionType _type;      // type of option
-    double _S;             // Spot price
-    double _K;             // Strike price
-    double _T;             // Maturity
-    double _sigma;         // Volatility
-    double _r;             // Const interest rate
-    double _q;             // Compound dividend rate
+class MonteCarlo
+{
+private:
+    Option _option;
+    OptionPayoff _payoff; // payoff type
+    OptionExercise _ex;   // exercise type
+    OptionType _type;     // type of option
+    double _S;            // Spot price
+    double _K;            // Strike price
+    double _T;            // Maturity
+    double _sigma;        // Volatility
+    double _r;            // Const interest rate
+    double _q;            // Compound dividend rate
 
-    std::size_t _num_divs;  // number of discrete dividends
-    DivsTuple _divs;        // discrete dividends
+    std::size_t _num_divs; // number of discrete dividends
+    DivsTuple _divs;       // discrete dividends
 
     // Extra params
-    double _B;
+    std::vector<double> _add_params;
 
     // list of dividends
     std::vector<double> _tau_divs;
@@ -57,21 +60,13 @@ class MonteCarlo {
     // computing the greeks
     std::vector<double> greeks();
 
-   public:
+public:
     MonteCarlo() = default;
-    MonteCarlo(Option opt, std::size_t numPaths, std::size_t timeSteps, RandomNumberGenerator& rng);
+    MonteCarlo(Option opt, std::size_t numPaths, std::size_t timeSteps, RandomNumberGenerator &rng);
 
     // MC methods
-    std::vector<double> price_MC(long long numPaths, long long timeSteps, RandomNumberGenerator rng, bool include_greeks);
-
-    // set all parameters
-    void set_params(Option opt, std::size_t M_1, double alpha_1_temp);
-
-    // price option
-    std::vector<double> price_option(const Scheme& scheme, bool show_domain, bool include_greeks);
-
-    // print the approximations
-    void show_grid();
+    std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, std::vector<double> randoms, bool include_greeks);
+    std::vector<double> price_MC_main(std::vector<std::size_t> numPathsVec, std::vector<std::size_t> timeStepsVec, RandomNumberGenerator &random, bool include_greeks);
 };
 
 #endif /* MonteCarlo_hpp */
