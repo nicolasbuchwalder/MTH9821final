@@ -10,11 +10,11 @@
 		9BB18B5C2941491400FEF02E /* Option.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BB18B5A2941491400FEF02E /* Option.cpp */; };
 		9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */; };
 		9BD7F0E22935423800FEC86C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0E12935423800FEC86C /* main.cpp */; };
-		9BD7F0EB293543DA00FEC86C /* FiniteDifferencePricer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */; };
 		9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */; };
 		9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F22935450400FEC86C /* Decomposer.cpp */; };
 		9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */; };
 		9BFADA1A2944492F005F20E8 /* BinomialTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BFADA182944492F005F20E8 /* BinomialTree.cpp */; };
+		9BFADA2329444D1B005F20E8 /* MonteCarlo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BFADA2229444D1B005F20E8 /* MonteCarlo.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,8 +37,6 @@
 		9BD7F0DE2935423800FEC86C /* FD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FD; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD7F0E12935423800FEC86C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		9BD7F0E82935425F00FEC86C /* EigenCommonHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EigenCommonHeader.h; sourceTree = "<group>"; };
-		9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FiniteDifferencePricer.cpp; sourceTree = "<group>"; };
-		9BD7F0EA293543DA00FEC86C /* FiniteDifferencePricer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FiniteDifferencePricer.hpp; sourceTree = "<group>"; };
 		9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LinearSolver.cpp; sourceTree = "<group>"; };
 		9BD7F0F02935449B00FEC86C /* LinearSolver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LinearSolver.hpp; sourceTree = "<group>"; };
 		9BD7F0F22935450400FEC86C /* Decomposer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Decomposer.cpp; sourceTree = "<group>"; };
@@ -48,6 +46,8 @@
 		9BDD3CDF2942B3CD00F8E56C /* RandomNumberGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomNumberGenerator.hpp; sourceTree = "<group>"; };
 		9BFADA182944492F005F20E8 /* BinomialTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BinomialTree.cpp; sourceTree = "<group>"; };
 		9BFADA192944492F005F20E8 /* BinomialTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BinomialTree.hpp; sourceTree = "<group>"; };
+		9BFADA2129444D1B005F20E8 /* MonteCarlo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MonteCarlo.hpp; sourceTree = "<group>"; };
+		9BFADA2229444D1B005F20E8 /* MonteCarlo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MonteCarlo.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +64,8 @@
 		9BD7F0D52935423800FEC86C = {
 			isa = PBXGroup;
 			children = (
+				9BFADA2229444D1B005F20E8 /* MonteCarlo.cpp */,
+				9BFADA2129444D1B005F20E8 /* MonteCarlo.hpp */,
 				9BFADA182944492F005F20E8 /* BinomialTree.cpp */,
 				9BFADA192944492F005F20E8 /* BinomialTree.hpp */,
 				9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */,
@@ -77,8 +79,6 @@
 				9BD7F0F32935450400FEC86C /* Decomposer.hpp */,
 				9BD7F0F22935450400FEC86C /* Decomposer.cpp */,
 				9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */,
-				9BD7F0EA293543DA00FEC86C /* FiniteDifferencePricer.hpp */,
-				9BD7F0E9293543DA00FEC86C /* FiniteDifferencePricer.cpp */,
 				9BD7F0E82935425F00FEC86C /* EigenCommonHeader.h */,
 				9BD7F0E12935423800FEC86C /* main.cpp */,
 				9BD7F0DF2935423800FEC86C /* Products */,
@@ -152,8 +152,8 @@
 			files = (
 				9BB18B5C2941491400FEF02E /* Option.cpp in Sources */,
 				9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */,
-				9BD7F0EB293543DA00FEC86C /* FiniteDifferencePricer.cpp in Sources */,
 				9BD7F0E22935423800FEC86C /* main.cpp in Sources */,
+				9BFADA2329444D1B005F20E8 /* MonteCarlo.cpp in Sources */,
 				9BFADA1A2944492F005F20E8 /* BinomialTree.cpp in Sources */,
 				9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */,
 				9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */,
