@@ -5,6 +5,7 @@
 //  Created by Nicolas Buchwalder on 28.11.22.
 //
 
+/*
 #include <iostream>
 #include <iomanip>
 #include "Option.hpp"
@@ -39,5 +40,23 @@ int main(int argc, const char * argv[]) {
         fd.print(res);
     }
     
+    return 0;
+}
+*/
+
+#include <iostream>
+#include <iomanip>
+#include "Option.hpp"
+#include "MonteCarlo.hpp"
+
+int main(int argc, const char *argv[])
+{
+
+    DivsTuple divs;
+    std::vector<double> add_params;
+    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 48., 50., .5, .25, .03, .0, divs, add_params);
+
+    MonteCarlo mc;
+    std::cout << "Done!" << std::endl;
     return 0;
 }
