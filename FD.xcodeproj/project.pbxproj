@@ -14,6 +14,7 @@
 		9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */; };
 		9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F22935450400FEC86C /* Decomposer.cpp */; };
 		9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */; };
+		9BDD3CE02942B3CD00F8E56C /* MonteCarlo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BDD3CDD2942B3CD00F8E56C /* MonteCarlo.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +45,9 @@
 		9BD7F0F32935450400FEC86C /* Decomposer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Decomposer.hpp; sourceTree = "<group>"; };
 		9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IterativeSolver.cpp; sourceTree = "<group>"; };
 		9BD7F0F62935453D00FEC86C /* IterativeSolver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IterativeSolver.hpp; sourceTree = "<group>"; };
+		9BDD3CDD2942B3CD00F8E56C /* MonteCarlo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MonteCarlo.cpp; sourceTree = "<group>"; };
+		9BDD3CDE2942B3CD00F8E56C /* MonteCarlo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MonteCarlo.hpp; sourceTree = "<group>"; };
+		9BDD3CDF2942B3CD00F8E56C /* RandomNumberGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomNumberGenerator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,9 @@
 			isa = PBXGroup;
 			children = (
 				9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */,
+				9BDD3CDD2942B3CD00F8E56C /* MonteCarlo.cpp */,
+				9BDD3CDE2942B3CD00F8E56C /* MonteCarlo.hpp */,
+				9BDD3CDF2942B3CD00F8E56C /* RandomNumberGenerator.hpp */,
 				9BB18B5D29414ABE00FEF02E /* FiniteDifference.cpp */,
 				9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */,
 				9BD7F0F62935453D00FEC86C /* IterativeSolver.hpp */,
@@ -146,6 +153,7 @@
 				9BB18B5C2941491400FEF02E /* Option.cpp in Sources */,
 				9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */,
 				9BD7F0EB293543DA00FEC86C /* FiniteDifferencePricer.cpp in Sources */,
+				9BDD3CE02942B3CD00F8E56C /* MonteCarlo.cpp in Sources */,
 				9BD7F0E22935423800FEC86C /* main.cpp in Sources */,
 				9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */,
 				9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */,
