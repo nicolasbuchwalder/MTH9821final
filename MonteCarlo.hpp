@@ -18,7 +18,7 @@
 #include "Option.hpp"
 #include "RandomNumberGenerator.hpp"
 
-enum Scheme
+enum SDE
 {
     standardMC,
     hestonMC

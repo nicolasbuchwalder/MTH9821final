@@ -128,7 +128,7 @@ void FiniteDifferencePricer::EuroPut_advance_imex(double tau, double xl, double 
 
 void FiniteDifferencePricer::AmeriPut_advance_imex(double tau, double alpha, const std::vector<double>& x_mesh, std::vector<double>& u_mesh, const mat& A, const mat& b_multiplier) const {
     
-    // Prepare b
+
     vec b(u_mesh.size() - 2);
     
     // [Some matrix] * u

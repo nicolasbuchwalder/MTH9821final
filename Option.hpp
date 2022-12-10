@@ -64,11 +64,7 @@ private:
     double _zd2;
     double _Nd1;
     double _Nd2;
-
-    // helper function
-    double z(double t) const;
-    double phi(double t) const;
-
+    
     void update_vals(double t);
 
 public:
@@ -79,5 +75,9 @@ public:
     ParamsTuple get_params() const;
 
     std::vector<double> price_european(bool includeGreeks = false) const;
+    
+    // helper function
+    double z(double t) const;
+    double phi(double t) const;
 };
 #endif /* Option_hpp */

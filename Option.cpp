@@ -7,6 +7,8 @@
 
 #include "Option.hpp"
 
+#define _USE_MATH_DEFINES
+
 Option::Option(OptionExercise ex, OptionPayoff payoff, OptionType type, double S, double K, double T, double sigma, double r, double q, DivsTuple divs, std::vector<double> add_params)
     : _ex(ex), _payoff(payoff), _type(type), _S(S), _K(K), _T(T), _sigma(sigma), _r(r), _q(q), _divs(divs), _add_params(add_params), _t(0) {
     update_vals(0);
@@ -38,10 +40,10 @@ double Option::phi(double t) const {
 
 // PDF of std normal
 double Option::z(double t) const {
-    return std::exp(-t * t / 2.) / std::sqrt(2. * std::numbers::pi);
+    return std::exp(-t * t / 2.) / std::sqrt(2. * M_PI);
 }
 
-std::vector<double> Option::price_european(bool includeGreeks = false) const {
+std::vector<double> Option::price_european(bool includeGreeks) const {
     std::vector<double> res;
 
     switch (_payoff) {

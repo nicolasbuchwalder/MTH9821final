@@ -30,6 +30,9 @@ class LinearCongruential : public RandomNumberGenerator {
     }
 };
 
+
+
+
 class InverseTransform : public RandomNumberGenerator {
    protected:
     double a0 = 2.50662823884, a1 = -18.61500062529, a2 = 41.39119773534, a3 = -25.44106049637;
@@ -66,6 +69,10 @@ class InverseTransform : public RandomNumberGenerator {
     }
 };
 
+
+
+
+
 class AcceptanceRejection : public RandomNumberGenerator {
    protected:
     //    double c;
@@ -91,6 +98,10 @@ class AcceptanceRejection : public RandomNumberGenerator {
         return x;
     }
 };
+
+
+
+
 
 class BoxMuller : public RandomNumberGenerator {
    protected:

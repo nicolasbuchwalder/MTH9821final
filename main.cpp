@@ -10,6 +10,7 @@
 #include "Option.hpp"
 #include "FiniteDifference.hpp"
 
+
 void PrintVector(const std::vector<double>& vec) {
     for (auto elem : vec) {
         std::cout << elem << "\t";
@@ -19,20 +20,24 @@ void PrintVector(const std::vector<double>& vec) {
 
 
 
-
 int main(int argc, const char * argv[]) {
+    std::cout << std::fixed << std::setprecision(6);
     
     DivsTuple divs;
-    divs.push_back(std::make_tuple(true, 2./12., .01));
+    divs.push_back(std::make_tuple(true, 5./12., .01));
     
-    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 48., 50., .5, .25, .03, .01, DivsTuple(), std::vector<double>());
+    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 52., 50., 1., .2, .03, 0. , divs, std::vector<double>());
     
     
-    FiniteDifference fd;
-    fd.set_params(o, 1000, 0.4);
-    auto res = fd.price_option(Scheme::cn_lu, true);
-    //fd.show_domain_params();
-    //fd.show_grid(false);
-    fd.print(res);
+    std::vector<std::size_t> Ms{4};//, 16, 64, 256};
+    for (auto M : Ms){
+        FiniteDifference fd;
+        fd.set_params(o, M, 0.4);
+        auto res = fd.price_option(Scheme::eul_expl);
+        //fd.show_domain_params();
+        //fd.show_grid(false);
+        fd.print(res);
+    }
+    
     return 0;
 }

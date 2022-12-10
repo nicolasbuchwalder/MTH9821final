@@ -49,8 +49,8 @@ private:
     std::size_t _N;
     double _alpha_temp;
     
-    double _x_l;
-    double _x_r;
+    std::vector<double> _x_ls;
+    std::vector<double> _x_rs;
     std::vector<double> _taus;
     
     std::vector<double> _alphas;
@@ -74,11 +74,18 @@ private:
     double _target_x;
     std::pair<std::size_t, std::size_t> _target_idx;
     
+    double _x_minus2, _x_minus, _x_plus, _x_plus2;  // terminal x values
+    double _u_minus2, _u_minus, _u_plus, _u_plus2;  // terminal u values
+    double _S_minus2, _S_minus, _S_plus, _S_plus2;  // terminal S values
+    double _V_minus2, _V_minus, _V_plus, _V_plus2;  // terminal V values
+    
+    
     
     // boundary conditions
     std::function<double (double)> _boundary_tau_0;
     std::function<double (double, double)> _boundary_x_l;
     std::function<double (double, double)> _boundary_x_r;
+    std::function<double (double, double)> _early_ex_premium;
     
     // domain builders
     void build_domain();
@@ -93,7 +100,7 @@ private:
     void advance_expl(double alpha, double tau, double xl, double xr);
     void advance_impl(double alpha, double tau, double xl, double xr, const mat& L, const mat& U);
     void advance_cn_lu(double alpha, double tau, double xl, double xr, const mat& L, const mat& U, const mat& b_multiplier);
-    void advance_cn_sor();
+    void advance_cn_sor(double alpha, double tau, double xl, double xr, const mat& A, const mat& b_multiplier);
     
     // functions to compute the finite difference over subdomain (after each discrete divs)
     void compute_sub_domain_expl(std::size_t sub, double start_tau);
@@ -101,10 +108,18 @@ private:
     void compute_sub_domain_cn_lu(std::size_t sub, double start_tau);
     void compute_sub_domain_cn_sor(std::size_t sub, double start_tau);
     
-    // function to convert from heat to real world
+    // function to shift x and u meshes between subdomains
+    void shift_domain(std::size_t sub);
+    
+    // functions to convert from heat to real world
+    double x_to_S(double x) const;
     double u_to_v(double x, double tau, double u) const;
     
-    double approximate();
+    
+    
+    void compute_terminal_vals();
+    
+    std::vector<double> approximate();
     
     // computing the greeks
     std::vector<double> greeks();
