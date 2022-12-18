@@ -55,6 +55,7 @@ public:
     // MC methods
     double *generatePath(double *randoms, std::size_t timeSteps);
     std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_controlvariate(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
     RandomNumberGenerator *getRandomNumberGenerator();
     void validateParameters();
     bool isBarrierHit(double *path, std::size_t timeSteps);

@@ -90,7 +90,68 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
         }
     }
 
-    price_return.push_back(Vcap / numPaths);
+    Vcap = Vcap / numPaths;
+    price_return.push_back(Vcap);
+    return price_return;
+}
+
+std::vector<double> MonteCarlo::price_option_controlvariate(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
+{
+    MonteCarlo::validateParameters();
+    bool isBarrierOption = _option.isBarrierOption();
+    bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
+
+    std::vector<double> price_return;
+
+    std::size_t len = numPaths * timeSteps + 1;
+    double *randoms = new double[len];
+    RandomNumberGenerator *rng = getRandomNumberGenerator();
+    for (std::size_t i = 0; i < len; i++)
+    {
+        randoms[i] = (*rng)();
+    }
+
+    double *path;
+    double *S_arr = new double[numPaths];
+    double *V_arr = new double[numPaths];
+    double Vcap = 0;
+    double Scap = 0;
+
+    for (std::size_t i = 0; i < numPaths; i++)
+    {
+        path = generatePath(&randoms[i * timeSteps], timeSteps);
+        S_arr[i] = path[timeSteps];
+        Scap += path[timeSteps];
+        if (!isBarrierOption 
+        || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+        || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps)) // downout and upout options - Barrier should not be hit and it is not hit
+        )
+        {
+            double priceForPath = exp(-_r * _T) * getPathPayoff(path[timeSteps]);
+            V_arr[i] = priceForPath;
+            Vcap += priceForPath;
+        }
+    }
+
+    Scap = Scap / numPaths;
+    Vcap = Vcap / numPaths;
+    
+    double bnum = 0;
+    double bden = 0;
+    for (std::size_t i = 0; i < numPaths; i++)
+    {
+        bnum += (S_arr[i] - Scap) * (V_arr[i] - Vcap);
+        bden += (S_arr[i] - Scap) * (S_arr[i] - Scap);
+    }
+    double bcap = bnum / bden;
+
+    double Wcap = 0;
+    for (std::size_t i = 0; i < numPaths; i++)
+    {
+        Wcap += V_arr[i] - bcap * (S_arr[i] - exp(_r * _T) * _S);
+    }
+    Wcap = Wcap / numPaths;
+    price_return.push_back(Wcap);
     return price_return;
 }
 
