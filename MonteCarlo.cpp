@@ -82,11 +82,11 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
     {
         path = generatePath(&randoms[i * timeSteps], timeSteps);
         if (!isBarrierOption 
-        || (shouldBarrierBeHit && isBarrierHit(path, timeSteps, _add_params[0], _type)) // downin and upin options - Barrier should be hit and it is hit
-        || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps, _add_params[0], _type)) // downout and upout options - Barrier should not be hit and it is not hit
+        || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+        || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps)) // downout and upout options - Barrier should not be hit and it is not hit
         )
         {
-            Vcap += exp(-_r * _T) * std::max(path[timeSteps] - _K, 0.0);
+            Vcap += exp(-_r * _T) * getPathPayoff(path[timeSteps]);
         }
     }
 
@@ -94,12 +94,13 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
     return price_return;
 }
 
-bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps, double B, OptionType type)
+bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps)
 {
+    double B = _add_params[0];
     bool barrierHit = false;
     for (std::size_t j = 0; j <= timeSteps; j++)
     {
-        if (type == OptionType::downin || type == OptionType::downout)
+        if (_type == OptionType::downin || _type == OptionType::downout)
         {
             if (path[j] <= B)
             {
@@ -107,7 +108,7 @@ bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps, double B, Opt
                 break;
             }
         }
-        else if (type == OptionType::upin || type == OptionType::upout)
+        else if (_type == OptionType::upin || _type == OptionType::upout)
         {
             if (path[j] >= B)
             {
@@ -118,4 +119,18 @@ bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps, double B, Opt
     }
 
     return barrierHit;
+}
+double MonteCarlo::getPathPayoff(double lastPathValue)
+{
+    if(_payoff == OptionPayoff::call)
+    {
+        return std::max(lastPathValue - _K, 0.0);
+    }
+
+    if(_payoff == OptionPayoff::put)
+    {
+        return std::max(_K - lastPathValue, 0.0);
+    }
+
+    throw std::invalid_argument("Payoff not defined for option type");
 }

@@ -57,7 +57,8 @@ public:
     std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
     RandomNumberGenerator *getRandomNumberGenerator();
     void validateParameters();
-    bool isBarrierHit(double *path, std::size_t timeSteps, double B, OptionType type);
+    bool isBarrierHit(double *path, std::size_t timeSteps);
+    double getPathPayoff(double s);
 };
 
 #endif /* MonteCarlo_hpp */
