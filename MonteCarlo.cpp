@@ -41,6 +41,10 @@ RandomNumberGenerator *MonteCarlo::getRandomNumberGenerator()
     }
 }
 
+void MonteCarlo::validateParameters()
+{
+}
+
 /**
  * Generates one MC path.
  */
@@ -58,6 +62,10 @@ double *MonteCarlo::generatePath(double *randoms, std::size_t timeSteps)
 
 std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
+    MonteCarlo::validateParameters();
+    bool isBarrierOption = _option.isBarrierOption();
+    bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
+
     std::vector<double> price_return;
 
     std::size_t len = numPaths * timeSteps + 1;
@@ -73,16 +81,10 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
     for (std::size_t i = 0; i < numPaths; i++)
     {
         path = generatePath(&randoms[i * timeSteps], timeSteps);
-        bool barrierHit = false;
-        for (std::size_t j = 0; j <= timeSteps; j++)
-        {
-            if (path[j] <= _add_params[0])
-            {
-                barrierHit = true;
-                break;
-            }
-        }
-        if (!barrierHit)
+        if (!isBarrierOption 
+        || (shouldBarrierBeHit && isBarrierHit(path, timeSteps, _add_params[0], _type)) // downin and upin options - Barrier should be hit and it is hit
+        || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps, _add_params[0], _type)) // downout and upout options - Barrier should not be hit and it is not hit
+        )
         {
             Vcap += exp(-_r * _T) * std::max(path[timeSteps] - _K, 0.0);
         }
@@ -90,4 +92,30 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
 
     price_return.push_back(Vcap / numPaths);
     return price_return;
+}
+
+bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps, double B, OptionType type)
+{
+    bool barrierHit = false;
+    for (std::size_t j = 0; j <= timeSteps; j++)
+    {
+        if (type == OptionType::downin || type == OptionType::downout)
+        {
+            if (path[j] <= B)
+            {
+                barrierHit = true;
+                break;
+            }
+        }
+        else if (type == OptionType::upin || type == OptionType::upout)
+        {
+            if (path[j] >= B)
+            {
+                barrierHit = true;
+                break;
+            }
+        }
+    }
+
+    return barrierHit;
 }

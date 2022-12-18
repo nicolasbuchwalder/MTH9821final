@@ -5,12 +5,14 @@
 //  Created by Nicolas Buchwalder on 28.11.22.
 //
 
+#include <iostream>
 #include "Option.hpp"
 
 Option::Option(OptionExercise ex, OptionPayoff payoff, OptionType type, double S, double K, double T, double sigma, double r, double q, DivsTuple divs, std::vector<double> add_params)
     : _ex(ex), _payoff(payoff), _type(type), _S(S), _K(K), _T(T), _sigma(sigma), _r(r), _q(q), _divs(divs), _add_params(add_params), _t(0)
 {
     update_vals(0);
+    validateOption();
 };
 
 ParamsTuple Option::get_params() const
@@ -41,11 +43,13 @@ double Option::phi(double t) const
 };
 
 // PDF of std normal
-double Option::z(double t) const {
+double Option::z(double t) const
+{
     return std::exp(-t * t / 2.) / std::sqrt(2. * std::numbers::pi);
 }
 
-std::vector<double> Option::price_european(bool includeGreeks) const {
+std::vector<double> Option::price_european(bool includeGreeks) const
+{
     std::vector<double> res;
 
     switch (_payoff)
@@ -78,3 +82,16 @@ std::vector<double> Option::price_european(bool includeGreeks) const {
     }
     return res;
 };
+
+bool Option::validateOption() const
+{
+    if (_type != OptionType::vanilla && _add_params.size() == 0)
+    {
+        throw std::invalid_argument("Option type is not vanilla but no barrier defined.");
+    }
+}
+
+bool Option::isBarrierOption() const
+{
+    return _type != OptionType::vanilla;
+}
