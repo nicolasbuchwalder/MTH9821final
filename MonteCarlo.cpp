@@ -13,43 +13,81 @@
 #include "LinearSolver.hpp"
 #include "RandomNumberGenerator.hpp"
 
-MonteCarlo::MonteCarlo(Option option, std::size_t numPaths, std::size_t timeSteps, RandomNumberGenerator &rng)
+MonteCarlo::MonteCarlo(Option option, RandomNumberGeneratorEnum rng)
 {
     std::tie(_ex, _payoff, _type, _S, _K, _T, _sigma, _r, _q, _divs, _add_params) = option.get_params();
     _option = option;
+    _rng = rng;
 }
 
-std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t timeSteps, std::vector<double> randoms, bool include_greeks)
+RandomNumberGenerator *MonteCarlo::getRandomNumberGenerator()
 {
+    switch (_rng)
+    {
+    case RandomNumberGeneratorEnum::LinearCongruentialRNG:
+        return new LinearCongruential();
+
+    case RandomNumberGeneratorEnum::InverseTransformRNG:
+        return new InverseTransform();
+
+    case RandomNumberGeneratorEnum::AcceptanceRejectionRNG:
+        return new AcceptanceRejection();
+
+    case RandomNumberGeneratorEnum::BoxMullerRNG:
+        return new BoxMuller();
+
+    default:
+        return new BoxMuller();
+    }
+}
+
+/**
+ * Generates one MC path.
+ */
+double *MonteCarlo::generatePath(double *randoms, std::size_t timeSteps)
+{
+    double *Sj = new double[timeSteps + 1];
     double dt = _T / timeSteps;
+    Sj[0] = _S;
+    for (std::size_t i = 1; i <= timeSteps; i++)
+    {
+        Sj[i] = Sj[i - 1] * exp((_r - _q - pow(_sigma, 2) / 2) * dt + _sigma * sqrt(dt) * randoms[i]);
+    }
+    return Sj;
+}
+
+std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
+{
+    std::vector<double> price_return;
+
+    std::size_t len = numPaths * timeSteps + 1;
+    double *randoms = new double[len];
+    RandomNumberGenerator *rng = getRandomNumberGenerator();
+    for (std::size_t i = 0; i < len; i++)
+    {
+        randoms[i] = (*rng)();
+    }
+
+    double *path;
+    double Vcap = 0;
     for (std::size_t i = 0; i < numPaths; i++)
     {
+        path = generatePath(&randoms[i * timeSteps], timeSteps);
+        bool barrierHit = false;
+        for (std::size_t j = 0; j <= timeSteps; j++)
+        {
+            if (path[j] <= _add_params[0])
+            {
+                barrierHit = true;
+                break;
+            }
+        }
+        if (!barrierHit)
+        {
+            Vcap += exp(-_r * _T) * std::max(path[timeSteps] - _K, 0.0);
+        }
     }
-}
 
-std::vector<double> MonteCarlo::price_MC_main(std::vector<std::size_t> numPathsVec, std::vector<std::size_t> timeStepsVec, RandomNumberGenerator &random, bool include_greeks)
-{
-    std::size_t N = numPathsVec.back() * timeStepsVec.back();
-    std::vector<double> randoms;
-    for (std::size_t i = 0; i < N; i++)
-    {
-        randoms.push_back(random());
-    }
-
-    std::size_t len = numPathsVec.size();
-
-    for (int i = 0; i < len; i++)
-    {
-        std::vector<double> price_BS = _option.price_european();
-
-        std::size_t numPaths = numPathsVec[i];
-        std::size_t timeSteps = timeStepsVec[i];
-        std::vector<double> price_res = price_option(numPaths, timeSteps, randoms, include_greeks);
-
-        std::size_t timeSteps2 = ceil(pow(N, 1.0 / 3) * pow(_T, 2.0 / 3));
-        std::size_t numPaths2 = floor((double)N / timeSteps);
-        std::vector<double> price_res2 = price_option(numPaths2, timeSteps2, randoms, include_greeks);
-
-        std::cout << N << " " << timeSteps << " " << numPaths << " " << price_res[0] << abs(price_BS[0] - price_res[0]) << " " << timeSteps2 << " " << numPaths2 << " " << price_res2[0] << " " << abs(price_BS[0] - price_res2[0]) << std::endl;
-    }
+    price_return.push_back(Vcap / numPaths);
+    return price_return;
 }

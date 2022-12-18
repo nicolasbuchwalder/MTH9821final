@@ -18,21 +18,6 @@
 #include "Option.hpp"
 #include "RandomNumberGenerator.hpp"
 
-enum SDE
-{
-    standardMC,
-    hestonMC
-};
-
-/*
-enum RandomGeneratorMethod {
-    LinearCongruential,
-    InverseTransform,
-    AcceptanceRejection,
-    BoxMuller
-}
-*/
-
 class MonteCarlo
 {
 private:
@@ -53,6 +38,9 @@ private:
     // Extra params
     std::vector<double> _add_params;
 
+    // Random Number Generator
+    RandomNumberGeneratorEnum _rng;
+
     // list of dividends
     std::vector<double> _tau_divs;
     std::vector<double> _q_divs;
@@ -62,11 +50,12 @@ private:
 
 public:
     MonteCarlo() = default;
-    MonteCarlo(Option opt, std::size_t numPaths, std::size_t timeSteps, RandomNumberGenerator &rng);
+    MonteCarlo(Option opt, RandomNumberGeneratorEnum rng);
 
     // MC methods
-    std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, std::vector<double> randoms, bool include_greeks);
-    std::vector<double> price_MC_main(std::vector<std::size_t> numPathsVec, std::vector<std::size_t> timeStepsVec, RandomNumberGenerator &random, bool include_greeks);
+    double *generatePath(double *randoms, std::size_t timeSteps);
+    std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    RandomNumberGenerator *getRandomNumberGenerator();
 };
 
 #endif /* MonteCarlo_hpp */
