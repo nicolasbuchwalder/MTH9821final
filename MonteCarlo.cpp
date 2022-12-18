@@ -155,6 +155,47 @@ std::vector<double> MonteCarlo::price_option_controlvariate(std::size_t numPaths
     return price_return;
 }
 
+std::vector<double> MonteCarlo::price_option_antithetic(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
+{
+    MonteCarlo::validateParameters();
+    bool isBarrierOption = _option.isBarrierOption();
+    bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
+
+    std::vector<double> price_return;
+
+    std::size_t len = numPaths * timeSteps + 1;
+    double *randoms = new double[len];
+    double *randomsFlipped = new double[len];
+    RandomNumberGenerator *rng = getRandomNumberGenerator();
+    for (std::size_t i = 0; i < len; i++)
+    {
+        double rdm = (*rng)();
+        randoms[i] = rdm;
+        randomsFlipped[i] = -rdm;
+    }
+
+    double *path, *pathFlipped;
+    double Vcap = 0;
+    double VcapFlipped = 0;
+    for (std::size_t i = 0; i < numPaths; i++)
+    {
+        path = generatePath(&randoms[i * timeSteps], timeSteps);
+        pathFlipped = generatePath(&randomsFlipped[i * timeSteps], timeSteps);
+        if (!isBarrierOption 
+        || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+        || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps)) // downout and upout options - Barrier should not be hit and it is not hit
+        )
+        {
+            Vcap += exp(-_r * _T) * getPathPayoff(path[timeSteps]);
+            VcapFlipped += exp(-_r * _T) * getPathPayoff(pathFlipped[timeSteps]);
+        }
+    }
+
+    Vcap = (Vcap + VcapFlipped) / 2 / numPaths;
+    price_return.push_back(Vcap);
+    return price_return;
+}
+
 bool MonteCarlo::isBarrierHit(double *path, std::size_t timeSteps)
 {
     double B = _add_params[0];
