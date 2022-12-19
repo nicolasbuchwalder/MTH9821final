@@ -5,7 +5,7 @@
 //  Created by Nicolas Buchwalder on 28.11.22.
 //
 
-/*
+
 #include <iostream>
 #include <iomanip>
 #include "Option.hpp"
@@ -27,7 +27,7 @@ int main(int argc, const char * argv[]) {
     DivsTuple divs;
     divs.push_back(std::make_tuple(true, 5./12., .01));
     
-    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 52., 50., 1., .2, .03, 0. , divs, std::vector<double>());
+    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::downout, 52., 50., 1., .2, .03, 0. , divs, std::vector<double>());
     
     
     std::vector<std::size_t> Ms{4};//, 16, 64, 256};
@@ -42,21 +42,21 @@ int main(int argc, const char * argv[]) {
     
     return 0;
 }
-*/
 
-#include <iostream>
-#include <iomanip>
-#include "Option.hpp"
-#include "MonteCarlo.hpp"
 
-int main(int argc, const char *argv[])
-{
-
-    DivsTuple divs;
-    std::vector<double> add_params;
-    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 48., 50., .5, .25, .03, .0, divs, add_params);
-
-    MonteCarlo mc;
-    std::cout << "Done!" << std::endl;
-    return 0;
-}
+//#include <iostream>
+//#include <iomanip>
+//#include "Option.hpp"
+//#include "MonteCarlo.hpp"
+//
+//int main(int argc, const char *argv[])
+//{
+//
+//    DivsTuple divs;
+//    std::vector<double> add_params;
+//    Option o(OptionExercise::euro, OptionPayoff::call, OptionType::vanilla, 48., 50., .5, .25, .03, .0, divs, add_params);
+//
+//    MonteCarlo mc;
+//    std::cout << "Done!" << std::endl;
+//    return 0;
+//}

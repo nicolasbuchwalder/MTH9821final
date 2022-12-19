@@ -115,8 +115,6 @@ private:
     double x_to_S(double x) const;
     double u_to_v(double x, double tau, double u) const;
     
-    
-    
     void compute_terminal_vals();
     
     std::vector<double> approximate();

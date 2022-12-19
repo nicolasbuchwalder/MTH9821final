@@ -25,6 +25,7 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
     for (std::size_t i = 0; i < numPaths; i++)
     {
     }
+    return std::vector<double>();
 }
 
 std::vector<double> MonteCarlo::price_MC_main(std::vector<std::size_t> numPathsVec, std::vector<std::size_t> timeStepsVec, RandomNumberGenerator &random, bool include_greeks)
@@ -52,4 +53,5 @@ std::vector<double> MonteCarlo::price_MC_main(std::vector<std::size_t> numPathsV
 
         std::cout << N << " " << timeSteps << " " << numPaths << " " << price_res[0] << abs(price_BS[0] - price_res[0]) << " " << timeSteps2 << " " << numPaths2 << " " << price_res2[0] << " " << abs(price_BS[0] - price_res2[0]) << std::endl;
     }
+    return std::vector<double>();
 }
