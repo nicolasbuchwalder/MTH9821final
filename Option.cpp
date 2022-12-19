@@ -51,7 +51,6 @@ double Option::z(double t) const
 std::vector<double> Option::price_european(bool includeGreeks) const
 {
     std::vector<double> res;
-
     switch (_payoff)
     {
     case call:
@@ -82,6 +81,20 @@ std::vector<double> Option::price_european(bool includeGreeks) const
     }
     return res;
 };
+
+double Option::calculate_iv(double actualprice, double tol)
+{
+    double x0 = 0.25;
+    double x_old = 0;
+    double x_new = x0;
+    while(std::abs(x_new-x_old)>tol){
+        x_old = x_new;
+        _sigma = x_new;
+        update_vals(0);
+        x_new = x_new - (price_european()[0] - actualprice) / price_european(true)[3];
+    }
+    return x_new;
+}
 
 bool Option::validateOption() const
 {

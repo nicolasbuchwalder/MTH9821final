@@ -75,6 +75,7 @@ public:
     ParamsTuple get_params() const;
 
     std::vector<double> price_european(bool includeGreeks = false) const;
+    double calculate_iv(double actualprice, double tol);
 
     // helper function
     double z(double t) const;
