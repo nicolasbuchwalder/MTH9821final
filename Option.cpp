@@ -87,7 +87,8 @@ double Option::calculate_iv(double actualprice, double tol)
     double x0 = 0.25;
     double x_old = 0;
     double x_new = x0;
-    while(std::abs(x_new-x_old)>tol){
+    while (std::abs(x_new - x_old) > tol)
+    {
         x_old = x_new;
         _sigma = x_new;
         update_vals(0);
