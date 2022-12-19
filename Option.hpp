@@ -33,6 +33,7 @@ enum OptionType
     downout
 };
 
+// std::tuple<false for fixed and true for proportional, ex-dividend time, value of dividend (can be fixed dollar amount or proportional to stock price)>
 using DivsTuple = std::vector<std::tuple<bool, double, double>>;
 using ParamsTuple = std::tuple<OptionExercise, OptionPayoff, OptionType, double, double, double, double, double, double, DivsTuple, std::vector<double>>;
 
