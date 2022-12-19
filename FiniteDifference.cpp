@@ -280,7 +280,7 @@ void FiniteDifference::advance_cn_sor(double alpha, double tau, double xl, doubl
     double omega = 1.2;
     IterativeSolver solver(A, b, early_ex_premium);
     vec sol(b.size());
-    std::tie(sol, std::ignore) = solver.SORProjected_lower(omega, StoppingCriterion::consecutive, tolerance, early_ex_premium);
+    std::tie(sol, std::ignore) = solver.SORProjected_lowerelementwise(omega, StoppingCriterion::consecutive, tolerance, early_ex_premium, alpha);
     
     // assign to new u_mesh
     std::copy(sol.cbegin(), sol.cend(), new_u_mesh.begin() + 1);
@@ -408,7 +408,7 @@ void FiniteDifference::shift_domain(std::size_t sub){
         // getting total of shifts
         double shifts_sum = 0;
         for (auto q : _q_divs){ shifts_sum += std::log(1. - q);};
-        std::transform(_x_mesh.begin(), _x_mesh.end(), _x_mesh.begin(), std::bind(std::plus<double>(), std::placeholders::_1,   - shifts_sum));
+        std::transform(_x_mesh.begin(), _x_mesh.end(), _x_mesh.begin(), std::bind(std::plus<double>(), std::placeholders::_1,  - shifts_sum));
     }
     
 }
@@ -503,7 +503,7 @@ std::vector<double> FiniteDifference::approximate(){
     std::size_t idx_plus = _target_idx.second;
     
     // THIS NEEDS TO BE CHANGED TO REAL VALUE
-    double real_val = _option.price_european()[0];
+    double real_val =  5.0455539623;
     
     // 1. linear interpolation of V
     double approx_1 = ((_S_plus - _S) * _V_minus  + (_S - _S_minus) * _V_plus) / (_S_plus - _S_minus);
@@ -546,13 +546,13 @@ std::vector<double> FiniteDifference::approximate(){
     
     // inserts
     res.insert(res.end(), approx_1);    // approx 1 through interpolation of V
-    //res.insert(res.end(), err_1);       // error approx 1
-    //res.insert(res.end(), 0.);
-    //res.insert(res.end(), approx_2);    // approx 2 through interpolation of u
-    //res.insert(res.end(), err_2);       // error approx 2
-    //res.insert(res.end(), 0.);
-    //res.insert(res.end(), error_RMS);   // error RMS
-    //res.insert(res.end(), 0.);
+    res.insert(res.end(), err_1);       // error approx 1
+    res.insert(res.end(), 0.);
+    res.insert(res.end(), approx_2);    // approx 2 through interpolation of u
+    res.insert(res.end(), err_2);       // error approx 2
+    res.insert(res.end(), 0.);
+    res.insert(res.end(), error_RMS);   // error RMS
+    res.insert(res.end(), 0.);
     
     
     return res;
