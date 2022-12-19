@@ -11,6 +11,7 @@
 #include "Option.hpp"
 
 #include <iostream>
+#include <functional>
 
 enum Method {
     standard,

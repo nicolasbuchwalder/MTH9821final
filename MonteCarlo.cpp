@@ -51,16 +51,31 @@ RandomNumberGenerator *MonteCarlo::getRandomNumberGenerator()
     }
 }
 
-void MonteCarlo::validateParameters()
+void MonteCarlo::validateParameters(std::size_t timeSteps)
 {
     if (!(_Model == Model::SDE || _Model == Model::Heston))
     {
-        throw std::invalid_argument("Unknown model provided");
+        throw std::invalid_argument("Unknown model provided.");
     }
 
     if (_Model == Model::Heston && _Heston.size() != 4)
     {
-        throw std::invalid_argument("Model provided is Heston but Heston parameters are not defined");
+        throw std::invalid_argument("Model provided is Heston but Heston parameters are not defined.");
+    }
+
+    if (_Model == Model::Heston && _divs.size() > 0)
+    {
+        throw std::invalid_argument("Discrete dividends are not supported with Heston model.");
+    }
+
+    if (_divs.size() > 0 && _q != 0)
+    {
+        throw std::invalid_argument("When discrete dividends are present, MonteCarlo model does not support a dividend yield. Please set _q to 0.");
+    }
+
+    if (_divs.size() > 0 && _divs.size() + 1 != timeSteps)
+    {
+        throw std::invalid_argument("When discrete dividends are present, MonteCarlo model only handles timesteps of size equal to the dividend payments.");
     }
 }
 
@@ -69,15 +84,52 @@ void MonteCarlo::validateParameters()
  */
 double *MonteCarlo::generatePathSDE(double *randoms, std::size_t timeSteps)
 {
-    double *Sj = new double[timeSteps + 1];
-    double dt = _T / timeSteps;
-    Sj[0] = _S;
-    for (std::size_t i = 1; i <= timeSteps; i++)
+    if (_divs.size() > 0)
     {
-        Sj[i] = Sj[i - 1] * exp((_r - _q - pow(_sigma, 2) / 2) * dt + _sigma * sqrt(dt) * randoms[i]);
-    }
+        double *Sj = new double[timeSteps + 1];
+        Sj[0] = _S;
 
-    return Sj;
+        std::vector<bool> _type_divs;
+        std::vector<double> _tau_divs {0.0};
+        std::vector<double> _q_divs;
+        for (auto t : _divs)
+        {
+            _type_divs.push_back(std::get<0>(t));
+            _tau_divs.push_back(std::get<1>(t));
+            _q_divs.push_back(std::get<2>(t));
+        }
+        _tau_divs.push_back(_T);
+
+        for (std::size_t i = 1; i <= timeSteps; i++)
+        {
+            bool div_type_proportional = _type_divs[i-1];
+            double dt = _tau_divs[i] - _tau_divs[i-1];
+            double q_div = _q_divs[i-1];
+            
+            if(div_type_proportional)
+            {
+                Sj[i] = Sj[i - 1] * exp((_r - _q - pow(_sigma, 2) / 2) * dt + _sigma * sqrt(dt) * randoms[i]) * (1 - q_div);
+            }
+            else
+            {
+                Sj[i] = Sj[i - 1] * exp((_r - _q - pow(_sigma, 2) / 2) * dt + _sigma * sqrt(dt) * randoms[i]) - q_div;
+            }
+        }
+        return Sj;
+    }
+    else
+    {
+        double *Sj = new double[timeSteps + 1];
+        double dt = _T / timeSteps;
+        Sj[0] = _S;
+
+        for (std::size_t i = 1; i <= timeSteps; i++)
+        {
+
+            Sj[i] = Sj[i - 1] * exp((_r - _q - pow(_sigma, 2) / 2) * dt + _sigma * sqrt(dt) * randoms[i]);
+        }
+        return Sj;
+    }
 }
 
 double *MonteCarlo::generatePathHeston(double *randomSpots, double *randomVols, std::size_t timeSteps)
@@ -106,7 +158,7 @@ double *MonteCarlo::generatePathHeston(double *randomSpots, double *randomVols, 
 
 std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 
@@ -140,7 +192,7 @@ std::vector<double> MonteCarlo::price_option(std::size_t numPaths, std::size_t t
 
 std::vector<double> MonteCarlo::price_option_controlvariate(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 
@@ -154,52 +206,135 @@ std::vector<double> MonteCarlo::price_option_controlvariate(std::size_t numPaths
         randoms[i] = (*rng)();
     }
 
-    double *path;
-    double *S_arr = new double[numPaths];
-    double *V_arr = new double[numPaths];
-    double Scap = 0;
-    double Vcap = 0;
-
-    for (std::size_t i = 0; i < numPaths; i++)
+    if(_divs.size() == 0)
     {
-        path = generatePathSDE(&randoms[i * timeSteps], timeSteps);
-        S_arr[i] = path[timeSteps];
-        Scap += path[timeSteps];
-        if (!isBarrierOption || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
-            || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps))                // downout and upout options - Barrier should not be hit and it is not hit
-        )
+        double *path;
+        double *S_arr = new double[numPaths];
+        double *V_arr = new double[numPaths];
+        double Scap = 0;
+        double Vcap = 0;
+
+        for (std::size_t i = 0; i < numPaths; i++)
         {
-            double priceForPath = exp(-_r * _T) * getPathPayoff(path[timeSteps]);
-            V_arr[i] = priceForPath;
-            Vcap += priceForPath;
+            path = generatePathSDE(&randoms[i * timeSteps], timeSteps);
+            S_arr[i] = path[timeSteps];
+            Scap += path[timeSteps];
+            if (!isBarrierOption || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+                || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps))                // downout and upout options - Barrier should not be hit and it is not hit
+            )
+            {
+                double priceForPath = exp(-_r * _T) * getPathPayoff(path[timeSteps]);
+                V_arr[i] = priceForPath;
+                Vcap += priceForPath;
+            }
         }
+
+        Scap = Scap / numPaths;
+        Vcap = Vcap / numPaths;
+
+        double bnum = 0;
+        double bden = 0;
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            bnum += (S_arr[i] - Scap) * (V_arr[i] - Vcap);
+            bden += (S_arr[i] - Scap) * (S_arr[i] - Scap);
+        }
+        double bcap = bnum / bden;
+
+        double Wcap = 0;
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            Wcap += V_arr[i] - bcap * (S_arr[i] - exp(_r * _T) * _S);
+        }
+        Wcap = Wcap / numPaths;
+        price_return.push_back(Wcap);
+        return price_return;
     }
-
-    Scap = Scap / numPaths;
-    Vcap = Vcap / numPaths;
-
-    double bnum = 0;
-    double bden = 0;
-    for (std::size_t i = 0; i < numPaths; i++)
+    else
     {
-        bnum += (S_arr[i] - Scap) * (V_arr[i] - Vcap);
-        bden += (S_arr[i] - Scap) * (S_arr[i] - Scap);
-    }
-    double bcap = bnum / bden;
+        double *path;
 
-    double Wcap = 0;
-    for (std::size_t i = 0; i < numPaths; i++)
-    {
-        Wcap += V_arr[i] - bcap * (S_arr[i] - exp(_r * _T) * _S);
+        // First price with discrete dividends
+        double *S_arr = new double[numPaths];
+        double *V_arr = new double[numPaths];
+        double Scap = 0;
+        double Vcap = 0;
+
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            path = generatePathSDE(&randoms[i * timeSteps], timeSteps);
+            S_arr[i] = path[timeSteps];
+            Scap += path[timeSteps];
+            if (!isBarrierOption || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+                || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps))                // downout and upout options - Barrier should not be hit and it is not hit
+            )
+            {
+                double priceForPath = exp(-_r * _T) * getPathPayoff(path[timeSteps]);
+                V_arr[i] = priceForPath;
+                Vcap += priceForPath;
+            }
+        }
+
+        Scap = Scap / numPaths;
+        Vcap = Vcap / numPaths;
+
+        // Now price with discrete dividends blanked out
+        double *S_tilde = new double[numPaths];
+        double *V_tilde = new double[numPaths];
+        double Stilde = 0;
+        double Vtilde = 0;
+
+        DivsTuple _divsCopy = _divs;
+        // Blank out the dividends
+        for (auto &t : _divs)
+        {
+            std::get<2>(t) = 0.0;
+        }
+
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            path = generatePathSDE(&randoms[i * timeSteps], timeSteps);
+            S_tilde[i] = path[timeSteps];
+            Stilde += path[timeSteps];
+            if (!isBarrierOption || (shouldBarrierBeHit && isBarrierHit(path, timeSteps)) // downin and upin options - Barrier should be hit and it is hit
+                || (!shouldBarrierBeHit && !isBarrierHit(path, timeSteps))                // downout and upout options - Barrier should not be hit and it is not hit
+            )
+            {
+                double priceForPath = exp(-_r * _T) * getPathPayoff(path[timeSteps]);
+                V_tilde[i] = priceForPath;
+                Vtilde += priceForPath;
+            }
+        }
+
+        double Stildecap = Stilde / numPaths;
+        double Vtildecap = Vtilde / numPaths;
+
+        // Restore _divs just for sanity
+        _divs = _divsCopy;
+        // Calculate bcap
+        double bnum = 0;
+        double bden = 0;
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            bnum += (V_tilde[i] - Vtildecap) * (V_arr[i] - Vcap);
+            bden += (V_tilde[i] - Vtildecap) * (V_tilde[i] - Vtildecap);
+        }
+        double bcap = bnum / bden;
+
+        double Wcap = 0;
+        for (std::size_t i = 0; i < numPaths; i++)
+        {
+            Wcap += V_arr[i] - bcap * (V_tilde[i] - _option.price_european()[0]);
+        }
+        Wcap = Wcap / numPaths;
+        price_return.push_back(Wcap);
+        return price_return;
     }
-    Wcap = Wcap / numPaths;
-    price_return.push_back(Wcap);
-    return price_return;
 }
 
 std::vector<double> MonteCarlo::price_option_antithetic(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 
@@ -239,7 +374,7 @@ std::vector<double> MonteCarlo::price_option_antithetic(std::size_t numPaths, st
 
 std::vector<double> MonteCarlo::price_option_momentmatching(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 
@@ -300,7 +435,7 @@ std::vector<double> MonteCarlo::price_option_momentmatching(std::size_t numPaths
 
 std::vector<double> MonteCarlo::price_option_controlvariatemomentmatching(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 
@@ -376,7 +511,7 @@ std::vector<double> MonteCarlo::price_option_controlvariatemomentmatching(std::s
 
 std::vector<double> MonteCarlo::price_option_Heston(std::size_t numPaths, std::size_t timeSteps, bool include_greeks)
 {
-    MonteCarlo::validateParameters();
+    MonteCarlo::validateParameters(timeSteps);
     bool isBarrierOption = _option.isBarrierOption();
     bool shouldBarrierBeHit = _type == OptionType::downin || _type == OptionType::upin;
 

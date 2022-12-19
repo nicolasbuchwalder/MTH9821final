@@ -79,7 +79,7 @@ public:
     void update_price(double S);
     void update_price_and_expiration(double S, double T);
     
-    std::vector<double> price_european(bool includeGreeks = false) const;
+    std::vector<double> price_european(bool includeGreeks = false);
     
     double price_european_withS(double S);
     double price_european_withSandT(double S, double T);

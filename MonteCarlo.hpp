@@ -76,7 +76,7 @@ public:
     std::vector<double> price_option_Heston(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
 
     RandomNumberGenerator *getRandomNumberGenerator();
-    void validateParameters();
+    void validateParameters(std::size_t timeSteps);
     bool isBarrierHit(double *path, std::size_t timeSteps);
     double getPathPayoff(double s);
 };

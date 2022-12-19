@@ -75,8 +75,9 @@ double Option::z(double t) const
     return std::exp(-t * t / 2.) / std::sqrt(2. * std::numbers::pi);
 }
 
-std::vector<double> Option::price_european(bool includeGreeks) const
+std::vector<double> Option::price_european(bool includeGreeks)
 {
+    update_params();
     std::vector<double> res;
     switch (_payoff)
     {
