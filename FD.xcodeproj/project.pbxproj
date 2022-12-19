@@ -13,6 +13,7 @@
 		9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0EF2935449B00FEC86C /* LinearSolver.cpp */; };
 		9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F22935450400FEC86C /* Decomposer.cpp */; };
 		9BD7F0F72935453D00FEC86C /* IterativeSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */; };
+		9BED65ED2950689C006143F4 /* TrinomialTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BED65EB2950689C006143F4 /* TrinomialTree.cpp */; };
 		9BFADA1A2944492F005F20E8 /* BinomialTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BFADA182944492F005F20E8 /* BinomialTree.cpp */; };
 		9BFADA2329444D1B005F20E8 /* MonteCarlo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BFADA2229444D1B005F20E8 /* MonteCarlo.cpp */; };
 /* End PBXBuildFile section */
@@ -44,6 +45,8 @@
 		9BD7F0F52935453D00FEC86C /* IterativeSolver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IterativeSolver.cpp; sourceTree = "<group>"; };
 		9BD7F0F62935453D00FEC86C /* IterativeSolver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IterativeSolver.hpp; sourceTree = "<group>"; };
 		9BDD3CDF2942B3CD00F8E56C /* RandomNumberGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomNumberGenerator.hpp; sourceTree = "<group>"; };
+		9BED65EB2950689C006143F4 /* TrinomialTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TrinomialTree.cpp; sourceTree = "<group>"; };
+		9BED65EC2950689C006143F4 /* TrinomialTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrinomialTree.hpp; sourceTree = "<group>"; };
 		9BFADA182944492F005F20E8 /* BinomialTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BinomialTree.cpp; sourceTree = "<group>"; };
 		9BFADA192944492F005F20E8 /* BinomialTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BinomialTree.hpp; sourceTree = "<group>"; };
 		9BFADA2129444D1B005F20E8 /* MonteCarlo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MonteCarlo.hpp; sourceTree = "<group>"; };
@@ -67,6 +70,8 @@
 				9BFADA2229444D1B005F20E8 /* MonteCarlo.cpp */,
 				9BFADA2129444D1B005F20E8 /* MonteCarlo.hpp */,
 				9BFADA182944492F005F20E8 /* BinomialTree.cpp */,
+				9BED65EB2950689C006143F4 /* TrinomialTree.cpp */,
+				9BED65EC2950689C006143F4 /* TrinomialTree.hpp */,
 				9BFADA192944492F005F20E8 /* BinomialTree.hpp */,
 				9BB18B5E29414ABE00FEF02E /* FiniteDifference.hpp */,
 				9BDD3CDF2942B3CD00F8E56C /* RandomNumberGenerator.hpp */,
@@ -156,6 +161,7 @@
 				9BFADA2329444D1B005F20E8 /* MonteCarlo.cpp in Sources */,
 				9BFADA1A2944492F005F20E8 /* BinomialTree.cpp in Sources */,
 				9BD7F0F12935449B00FEC86C /* LinearSolver.cpp in Sources */,
+				9BED65ED2950689C006143F4 /* TrinomialTree.cpp in Sources */,
 				9BB18B5F29414ABE00FEF02E /* FiniteDifference.cpp in Sources */,
 				9BD7F0F42935450400FEC86C /* Decomposer.cpp in Sources */,
 			);

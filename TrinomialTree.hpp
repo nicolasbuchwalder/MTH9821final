@@ -1,25 +1,20 @@
 //
-//  BinomialTree.hpp
+//  TrinomialTree.hpp
 //  FD
 //
-//  Created by Nicolas Buchwalder on 09.12.22.
+//  Created by Nicolas Buchwalder on 19.12.22.
 //
 
-#ifndef BinomialTree_hpp
-#define BinomialTree_hpp
+#ifndef TrinomialTree_hpp
+#define TrinomialTree_hpp
 
 #include "Option.hpp"
+#include "BinomialTree.hpp"
 
 #include <iostream>
 
-enum Method {
-    standard,
-    average,
-    bbs,
-    bbsr,
-};
 
-class BinomialTree {
+class TrinomialTree {
 
 private:
     
@@ -36,7 +31,7 @@ private:
     double _q;            // Compound dividend rate
 
     DivsTuple _divs; // dividend
-    std::size_t _num_divs; 
+    std::size_t _num_divs;
     std::vector<double> _add_params;
    
     // tree params
@@ -46,10 +41,9 @@ private:
     int _N;
     double _dt;
     double _u, _d;
-    double _down_step;
-    double _p;
+    double _del;
     double _r_disc;
-    double _p_disc, _q_disc;
+    double _p_up_disc, _p_m_disc, _p_down_disc;
     
     std::function<double (double)> _payoff_now;
     std::function<double (double, double)> _price_BS;
@@ -83,7 +77,7 @@ private:
 
 public:
     
-    BinomialTree() = default;
+    TrinomialTree() = default;
     
     // set all parameters
     void set_params(Option opt, int init_N, double tol);
@@ -99,4 +93,5 @@ public:
     void print(const std::vector<std::vector<T>>& mat) const;
     
 };
-#endif /* BinomialTree_hpp */
+
+#endif /* TrinomialTree_hpp */

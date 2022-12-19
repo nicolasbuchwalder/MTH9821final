@@ -11,27 +11,20 @@
 #include <array>
 #include <functional>
 #include <iostream>
+#include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 
 #include "EigenCommonHeader.h"
 #include "Option.hpp"
 #include "RandomNumberGenerator.hpp"
 
-enum SDE
+enum Model
 {
-    standardMC,
-    hestonMC
+    SDE,
+    Heston
 };
-
-/*
-enum RandomGeneratorMethod {
-    LinearCongruential,
-    InverseTransform,
-    AcceptanceRejection,
-    BoxMuller
-}
-*/
 
 class MonteCarlo
 {
@@ -53,6 +46,13 @@ private:
     // Extra params
     std::vector<double> _add_params;
 
+    // Heston parameters
+    Model _Model = Model::SDE;
+    std::vector<double> _Heston;
+
+    // Random Number Generator
+    RandomNumberGeneratorEnum _rng;
+
     // list of dividends
     std::vector<double> _tau_divs;
     std::vector<double> _q_divs;
@@ -62,11 +62,23 @@ private:
 
 public:
     MonteCarlo() = default;
-    MonteCarlo(Option opt, std::size_t numPaths, std::size_t timeSteps, RandomNumberGenerator &rng);
+    MonteCarlo(Option opt, RandomNumberGeneratorEnum rng);
+    MonteCarlo(Option opt, RandomNumberGeneratorEnum rng, Model _Model, std::vector<double> heston);
 
     // MC methods
-    std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, std::vector<double> randoms, bool include_greeks);
-    std::vector<double> price_MC_main(std::vector<std::size_t> numPathsVec, std::vector<std::size_t> timeStepsVec, RandomNumberGenerator &random, bool include_greeks);
+    double *generatePathSDE(double *randoms, std::size_t timeSteps);
+    double *generatePathHeston(double *randomSpots, double *randomVols, std::size_t timeSteps);
+    std::vector<double> price_option(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_controlvariate(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_antithetic(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_momentmatching(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_controlvariatemomentmatching(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+    std::vector<double> price_option_Heston(std::size_t numPaths, std::size_t timeSteps, bool include_greeks);
+
+    RandomNumberGenerator *getRandomNumberGenerator();
+    void validateParameters();
+    bool isBarrierHit(double *path, std::size_t timeSteps);
+    double getPathPayoff(double s);
 };
 
 #endif /* MonteCarlo_hpp */

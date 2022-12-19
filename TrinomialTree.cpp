@@ -1,13 +1,13 @@
 //
-//  BinomialTree.cpp
+//  TrinomialTree.cpp
 //  FD
 //
-//  Created by Nicolas Buchwalder on 09.12.22.
+//  Created by Nicolas Buchwalder on 19.12.22.
 //
 
-#include "BinomialTree.hpp"
+#include "TrinomialTree.hpp"
 
-void BinomialTree::set_payoff(){
+void TrinomialTree::set_payoff(){
 
     if (_type == vanilla && _payoff == OptionPayoff::call){
         _payoff_now = [=](double S){ return std::max(S - _K, 0.); };
@@ -19,15 +19,20 @@ void BinomialTree::set_payoff(){
     }
 }
 
-void BinomialTree::set_terminal_values_standard(int N){
-    double S_temp = _S * std::pow(_u, N);
-    for (int i = 0; i <= N; i++){
-        curr_Vs.push_back(_payoff_now(S_temp));
-        S_temp *= _down_step;
+void TrinomialTree::set_terminal_values_standard(int N){
+    curr_Vs.resize(2 * N + 1);
+    curr_Vs[N] = _payoff_now(_S);
+    double S_plus = _S;
+    double S_minus = _S;
+    for (int i = 1; i <= N; i++){
+        S_plus *= _u;
+        S_minus *= _d;
+        curr_Vs[N+i] = _payoff_now(S_plus);
+        curr_Vs[N-i] = _payoff_now(S_minus);
     }
 }
 
-void BinomialTree::set_terminal_values_black_scholes(int N){
+void TrinomialTree::set_terminal_values_black_scholes(int N){
     if (_ex == euro){
         set_terminal_values_black_scholes_european(N);
     }
@@ -36,23 +41,33 @@ void BinomialTree::set_terminal_values_black_scholes(int N){
     }
 }
 
-void BinomialTree::set_terminal_values_black_scholes_european(int N){
-    double S_temp = _S * std::pow(_u, N - 1);
-    for (int i = 0; i <= N - 1; i++){
-        curr_Vs.push_back(_price_BS(S_temp, _dt));
-        S_temp *= _down_step;
+void TrinomialTree::set_terminal_values_black_scholes_european(int N){
+    curr_Vs.resize(2 * N + 1);
+    curr_Vs[N] = _price_BS(_S, _dt);
+    double S_plus = _S;
+    double S_minus = _S;
+    for (int i = 1; i <= N; i++){
+        S_plus *= _u;
+        S_minus *= _d;
+        curr_Vs[N+i] = _price_BS(S_plus, _dt);
+        curr_Vs[N-i] = _price_BS(S_minus, _dt);
     }
 }
 
-void BinomialTree::set_terminal_values_black_scholes_american(int N){
-    double S_temp = _S * std::pow(_u, N - 1);
-    for (int i = 0; i <= N - 1; i++){
-        curr_Vs.push_back(std::max(_price_BS(S_temp, _dt), _payoff_now(S_temp)));
-        S_temp *= _down_step;
+void TrinomialTree::set_terminal_values_black_scholes_american(int N){
+    curr_Vs.resize(2 * N + 1);
+    curr_Vs[N] = std::max(_price_BS(_S, _dt), _payoff_now(_S));
+    double S_plus = _S;
+    double S_minus = _S;
+    for (int i = 1; i <= N; i++){
+        S_plus *= _u;
+        S_minus *= _d;
+        curr_Vs[N+i] = std::max(_price_BS(S_plus, _dt), _payoff_now(S_plus));
+        curr_Vs[N-i] = std::max(_price_BS(S_minus, _dt), _payoff_now(S_minus));
     }
 }
 
-void BinomialTree::backtrack(int N){
+void TrinomialTree::backtrack(int N){
     if (_ex == euro){
         backtrack_european(N);
     }
@@ -61,19 +76,19 @@ void BinomialTree::backtrack(int N){
     }
 }
 
-void BinomialTree::backtrack_european(int N){
+void TrinomialTree::backtrack_european(int N){
     for (int j = N - 1; j >= 0; j--){
         if (j == 0){
             past_past_Vs = std::move(past_Vs);
         }
         past_Vs = std::move(curr_Vs);
-        for (int i = 0; i <= j; i++){
-            curr_Vs.push_back(_p_disc * past_Vs[i] + _q_disc * past_Vs[i+1]);
+        for (int i = 0; i <= 2 * j; i++){
+            curr_Vs.push_back(_p_up_disc * past_Vs[i] + _p_m_disc * past_Vs[i+1] + _p_down_disc * past_Vs[i+2]);
         }
     }
 }
 
-void BinomialTree::backtrack_american(int N){
+void TrinomialTree::backtrack_american(int N){
     double S_temp;
     for (int j = N - 1; j >= 0; j--){
         if (j == 0){
@@ -81,15 +96,15 @@ void BinomialTree::backtrack_american(int N){
         }
         past_Vs = std::move(curr_Vs);
         S_temp = _S * std::pow(_u, j);
-        for (int i = 0; i <= j; i++){
-            curr_Vs.push_back(std::max(_p_disc * past_Vs[i] + _q_disc * past_Vs[i+1], _payoff_now(S_temp)));
-            S_temp *= _down_step;
+        for (int i = 0; i <= 2 * j; i++){
+            curr_Vs.push_back(std::max(_p_up_disc * past_Vs[i] + _p_m_disc * past_Vs[i+1] + _p_down_disc * past_Vs[i+2], _payoff_now(S_temp)));
+            S_temp *= _d;
         }
     }
 }
 
 
-std::vector<double> BinomialTree::price_standard(int N){
+std::vector<double> TrinomialTree::price_standard(int N){
     
     update_tree_params(N);
     set_terminal_values_standard(N);
@@ -105,7 +120,7 @@ std::vector<double> BinomialTree::price_standard(int N){
 }
 
 
-std::vector<double> BinomialTree::price_average(int N){
+std::vector<double> TrinomialTree::price_average(int N){
     
     update_tree_params(N + 1);
     set_terminal_values_standard(N + 1);
@@ -128,7 +143,7 @@ std::vector<double> BinomialTree::price_average(int N){
 }
 
 
-std::vector<double> BinomialTree::price_bbs(int N){
+std::vector<double> TrinomialTree::price_bbs(int N){
     
     update_tree_params(N);
     set_terminal_values_black_scholes(N);
@@ -146,7 +161,7 @@ std::vector<double> BinomialTree::price_bbs(int N){
 }
 
 
-std::vector<double> BinomialTree::price_bbsr(int N){
+std::vector<double> TrinomialTree::price_bbsr(int N){
     
     update_tree_params(N);
     set_terminal_values_black_scholes(N);
@@ -170,7 +185,7 @@ std::vector<double> BinomialTree::price_bbsr(int N){
 }
 
 
-std::vector<double> BinomialTree::greeks(){
+std::vector<double> TrinomialTree::greeks(){
     std::vector<double> past_Ss = {_S * _u, _S * _d};
     std::vector<double> past_past_Ss = {_S * _u * _u, _S, _S * _d * _d};
     double delta = (past_Vs[0] - past_Vs[1]) / (past_Ss[0] - past_Ss[1]);
@@ -181,7 +196,7 @@ std::vector<double> BinomialTree::greeks(){
     return std::vector<double>{delta, gamma, theta};
 }
 
-void BinomialTree::clear_contents(){
+void TrinomialTree::clear_contents(){
     curr_Vs.clear();
 }
 
@@ -191,14 +206,14 @@ void BinomialTree::clear_contents(){
 
 
 template < typename T >
-void BinomialTree::print(const std::vector<T>& vec) const {
+void TrinomialTree::print(const std::vector<T>& vec) const {
     for (auto elem : vec) {
         std::cout << elem << "\t";
     }
     std::cout << std::endl;
 }
 template < typename T >
-void BinomialTree::print(const std::vector<std::vector<T>>& mat) const {
+void TrinomialTree::print(const std::vector<std::vector<T>>& mat) const {
     for (auto vec : mat) {
         for (auto elem : vec){
             std::cout << elem << "\t";
@@ -213,7 +228,7 @@ void BinomialTree::print(const std::vector<std::vector<T>>& mat) const {
  PUBLIC METHODS
  */
 
-void BinomialTree::set_params(Option opt, int init_N, double tol){
+void TrinomialTree::set_params(Option opt, int init_N, double tol){
     
     _option = opt;
     std::tie(_ex, _payoff, _type, _S, _K, _T, _sigma, _r, _q, _divs, _add_params) = opt.get_params();
@@ -230,23 +245,23 @@ void BinomialTree::set_params(Option opt, int init_N, double tol){
     
 }
 
-void BinomialTree::update_tree_params(int N){
+void TrinomialTree::update_tree_params(int N){
     
     _N = N;
     _dt = _T / _N;
-    _u = std::exp(_sigma * std::sqrt(_dt));
+    _u = std::exp(_sigma * std::sqrt(3 * _dt));
     _d = 1. / _u;
-    _down_step = _d * _d;
-    _p = (std::exp((_r - _q) * _dt) - _d) / (_u - _d);
+    _del = (_r - _q  - _sigma * _sigma / 2.) * std::sqrt(_dt / (12. * _sigma * _sigma));
     _r_disc = std::exp(-_r * _dt);
-    _p_disc = _p * _r_disc;
-    _q_disc = (1 - _p) * _r_disc;
+    _p_up_disc = (1. / 6.  + _del) * _r_disc;
+    _p_m_disc = 2. / 3. * _r_disc;
+    _p_down_disc = (1. / 6.  - _del) * _r_disc;
     
     clear_contents();
 }
 
 
-std::vector<double> BinomialTree::price_option_no_tol(const Method& method){
+std::vector<double> TrinomialTree::price_option_no_tol(const Method& method){
     std::vector<double> res;
     switch (method) {
         case standard:
@@ -271,7 +286,7 @@ std::vector<double> BinomialTree::price_option_no_tol(const Method& method){
     
 }
 
-std::vector<double> BinomialTree::price_option(const Method& method){
+std::vector<double> TrinomialTree::price_option(const Method& method){
     std::vector<double> res;
     switch (method) {
         case standard: {
@@ -329,4 +344,3 @@ std::vector<double> BinomialTree::price_option(const Method& method){
     
     return res;
 }
-

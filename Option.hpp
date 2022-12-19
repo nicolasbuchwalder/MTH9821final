@@ -64,20 +64,33 @@ private:
     double _zd2;
     double _Nd1;
     double _Nd2;
-    
-    void update_vals(double t);
 
+    void update_params();
+    void check_barrier_validity() const;
+    
 public:
     Option() = default;
 
     Option(OptionExercise ex, OptionPayoff payoff, OptionType type, double S, double K, double T, double sigma, double r, double q, DivsTuple divs, std::vector<double> add_params);
 
     ParamsTuple get_params() const;
-
+    
+    void set_to_time(double t);
+    void update_price(double S);
+    void update_price_and_expiration(double S, double T);
+    
     std::vector<double> price_european(bool includeGreeks = false) const;
     
+    double price_european_withS(double S);
+    double price_european_withSandT(double S, double T);
+    
+    
+    double calculate_iv(double actualprice, double tol);
+
     // helper function
     double z(double t) const;
     double phi(double t) const;
+    bool isBarrierOption() const;
+    
 };
 #endif /* Option_hpp */
